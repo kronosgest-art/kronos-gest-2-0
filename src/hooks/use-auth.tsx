@@ -87,6 +87,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         emailRedirectTo: `${window.location.origin}/`,
       },
     })
+
+    // Ignore "Error sending confirmation email" as user is created anyway
+    if (error?.message === 'Error sending confirmation email') {
+      return { error: null }
+    }
+
     return { error }
   }
 

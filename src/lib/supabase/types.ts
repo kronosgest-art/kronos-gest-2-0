@@ -1913,6 +1913,25 @@ export const Constants = {
 //   END;
 //   $function$
 //
+// FUNCTION handle_new_user()
+//   CREATE OR REPLACE FUNCTION public.handle_new_user()
+//    RETURNS trigger
+//    LANGUAGE plpgsql
+//    SECURITY DEFINER
+//   AS $function$
+//   BEGIN
+//     INSERT INTO public.users (id, email, nome, role, organization_id)
+//     VALUES (
+//       NEW.id,
+//       NEW.email,
+//       NEW.raw_user_meta_data->>'nome',
+//       COALESCE(NEW.raw_user_meta_data->>'role', 'paciente'),
+//       NULLIF(NEW.raw_user_meta_data->>'organization_id', '')::uuid
+//     );
+//     RETURN NEW;
+//   END;
+//   $function$
+//
 // FUNCTION handle_new_user_sync()
 //   CREATE OR REPLACE FUNCTION public.handle_new_user_sync()
 //    RETURNS trigger
