@@ -1,4 +1,3 @@
-/* Tailwind config for the frontend react app. This is where the app theme should be defined: https://v2.tailwindcss.com/docs/configuration. */
 import type { Config } from 'tailwindcss'
 import animatePlugin from 'tailwindcss-animate'
 import typographyPlugin from '@tailwindcss/typography'
@@ -63,6 +62,13 @@ export default {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
+        },
+        gold: {
+          DEFAULT: '#B8860B',
+          hover: '#9A7009',
+        },
+        brand: {
+          DEFAULT: '#1E3A8A',
         },
         sidebar: {
           DEFAULT: 'hsl(var(--sidebar-background))',
