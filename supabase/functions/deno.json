@@ -1,12 +1,7 @@
 {
-  "_versions": {
-    "interpret-bioresonance": 1,
-    "generate-prescription-suggestion": 5,
-    "generate-cleansing-protocol": 2,
-    "stripe-webhook": 2,
-    "create-checkout-session": 1
-  }
-}
-functions": 1
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window", "deno.ns"],
+    "strict": true
   }
 }
