@@ -9,6 +9,308 @@ export type Database = {
   }
   public: {
     Tables: {
+      agendamentos: {
+        Row: {
+          created_at: string | null
+          data_hora: string | null
+          duracao_minutos: number | null
+          id: string
+          motivo_cancelamento: string | null
+          numero_sessoes: number | null
+          organization_id: string
+          paciente_id: string
+          profissional_id: string | null
+          status: string | null
+          tipo_procedimento: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_hora?: string | null
+          duracao_minutos?: number | null
+          id?: string
+          motivo_cancelamento?: string | null
+          numero_sessoes?: number | null
+          organization_id: string
+          paciente_id: string
+          profissional_id?: string | null
+          status?: string | null
+          tipo_procedimento?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_hora?: string | null
+          duracao_minutos?: number | null
+          id?: string
+          motivo_cancelamento?: string | null
+          numero_sessoes?: number | null
+          organization_id?: string
+          paciente_id?: string
+          profissional_id?: string | null
+          status?: string | null
+          tipo_procedimento?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'agendamentos_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agendamentos_paciente_id_fkey'
+            columns: ['paciente_id']
+            isOneToOne: false
+            referencedRelation: 'pacientes'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agendamentos_profissional_id_fkey'
+            columns: ['profissional_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      anamnese: {
+        Row: {
+          alergias_sensibilidades: Json | null
+          alimentacao_descricao: string | null
+          bebidas_acucaradas: string | null
+          cabelo_problemas: Json | null
+          cardiovascular: Json | null
+          cirurgias_internacoes: string | null
+          consome_gluten: boolean | null
+          consome_laticinios: boolean | null
+          consumo_agua_litros: number | null
+          consumo_alcool: string | null
+          consumo_cafe: string | null
+          corporal_problemas: Json | null
+          created_at: string | null
+          data_termo_consentimento: string | null
+          dificuldade_sono: Json | null
+          doencas_diagnosticadas: Json | null
+          duracao_atividade: string | null
+          endocrina: Json | null
+          exposicao_quimicos: boolean | null
+          fontes_estresse: Json | null
+          frequencia_acucares: string | null
+          frequencia_atividade: string | null
+          frequencia_carnes_vermelhas: string | null
+          frequencia_farinaceos: string | null
+          frequencia_frituras: string | null
+          frequencia_peixes: string | null
+          frequencia_ultraprocessados: string | null
+          gastrointestinal: Json | null
+          hepatica: Json | null
+          historico_familiar: Json | null
+          hobbies_relaxantes: string | null
+          horas_sono: number | null
+          id: string
+          identidade_genero: string | null
+          imunologica: Json | null
+          medicamentos_uso: Json | null
+          moradia_poluicao: boolean | null
+          nervosa: Json | null
+          nivel_estresse: string | null
+          objetivos_tratamento: string | null
+          observacoes_profissional: string | null
+          olhos_problemas: Json | null
+          organization_id: string
+          ossea_articular: Json | null
+          paciente_id: string
+          pancreatica: Json | null
+          pele_problemas: Json | null
+          porcoes_frutas: string | null
+          porcoes_vegetais: string | null
+          pratica_atividade_fisica: boolean | null
+          problemas_saude_mental: Json | null
+          profissao: string | null
+          profissional_id: string | null
+          pulmonar: Json | null
+          queixa_principal: string | null
+          renal: Json | null
+          restricoes_alimentares: string | null
+          rotina_cuidados_pele: string | null
+          sexo_biologico: string | null
+          suplementos_uso: Json | null
+          tabagismo: string | null
+          termo_consentimento_aceito: boolean | null
+          tipo_atividade_fisica: string | null
+          tipo_pele: string | null
+          unhas_problemas: Json | null
+          updated_at: string | null
+          usa_cosmeticos_quimicos: boolean | null
+          usa_panelas_aluminio: boolean | null
+        }
+        Insert: {
+          alergias_sensibilidades?: Json | null
+          alimentacao_descricao?: string | null
+          bebidas_acucaradas?: string | null
+          cabelo_problemas?: Json | null
+          cardiovascular?: Json | null
+          cirurgias_internacoes?: string | null
+          consome_gluten?: boolean | null
+          consome_laticinios?: boolean | null
+          consumo_agua_litros?: number | null
+          consumo_alcool?: string | null
+          consumo_cafe?: string | null
+          corporal_problemas?: Json | null
+          created_at?: string | null
+          data_termo_consentimento?: string | null
+          dificuldade_sono?: Json | null
+          doencas_diagnosticadas?: Json | null
+          duracao_atividade?: string | null
+          endocrina?: Json | null
+          exposicao_quimicos?: boolean | null
+          fontes_estresse?: Json | null
+          frequencia_acucares?: string | null
+          frequencia_atividade?: string | null
+          frequencia_carnes_vermelhas?: string | null
+          frequencia_farinaceos?: string | null
+          frequencia_frituras?: string | null
+          frequencia_peixes?: string | null
+          frequencia_ultraprocessados?: string | null
+          gastrointestinal?: Json | null
+          hepatica?: Json | null
+          historico_familiar?: Json | null
+          hobbies_relaxantes?: string | null
+          horas_sono?: number | null
+          id?: string
+          identidade_genero?: string | null
+          imunologica?: Json | null
+          medicamentos_uso?: Json | null
+          moradia_poluicao?: boolean | null
+          nervosa?: Json | null
+          nivel_estresse?: string | null
+          objetivos_tratamento?: string | null
+          observacoes_profissional?: string | null
+          olhos_problemas?: Json | null
+          organization_id: string
+          ossea_articular?: Json | null
+          paciente_id: string
+          pancreatica?: Json | null
+          pele_problemas?: Json | null
+          porcoes_frutas?: string | null
+          porcoes_vegetais?: string | null
+          pratica_atividade_fisica?: boolean | null
+          problemas_saude_mental?: Json | null
+          profissao?: string | null
+          profissional_id?: string | null
+          pulmonar?: Json | null
+          queixa_principal?: string | null
+          renal?: Json | null
+          restricoes_alimentares?: string | null
+          rotina_cuidados_pele?: string | null
+          sexo_biologico?: string | null
+          suplementos_uso?: Json | null
+          tabagismo?: string | null
+          termo_consentimento_aceito?: boolean | null
+          tipo_atividade_fisica?: string | null
+          tipo_pele?: string | null
+          unhas_problemas?: Json | null
+          updated_at?: string | null
+          usa_cosmeticos_quimicos?: boolean | null
+          usa_panelas_aluminio?: boolean | null
+        }
+        Update: {
+          alergias_sensibilidades?: Json | null
+          alimentacao_descricao?: string | null
+          bebidas_acucaradas?: string | null
+          cabelo_problemas?: Json | null
+          cardiovascular?: Json | null
+          cirurgias_internacoes?: string | null
+          consome_gluten?: boolean | null
+          consome_laticinios?: boolean | null
+          consumo_agua_litros?: number | null
+          consumo_alcool?: string | null
+          consumo_cafe?: string | null
+          corporal_problemas?: Json | null
+          created_at?: string | null
+          data_termo_consentimento?: string | null
+          dificuldade_sono?: Json | null
+          doencas_diagnosticadas?: Json | null
+          duracao_atividade?: string | null
+          endocrina?: Json | null
+          exposicao_quimicos?: boolean | null
+          fontes_estresse?: Json | null
+          frequencia_acucares?: string | null
+          frequencia_atividade?: string | null
+          frequencia_carnes_vermelhas?: string | null
+          frequencia_farinaceos?: string | null
+          frequencia_frituras?: string | null
+          frequencia_peixes?: string | null
+          frequencia_ultraprocessados?: string | null
+          gastrointestinal?: Json | null
+          hepatica?: Json | null
+          historico_familiar?: Json | null
+          hobbies_relaxantes?: string | null
+          horas_sono?: number | null
+          id?: string
+          identidade_genero?: string | null
+          imunologica?: Json | null
+          medicamentos_uso?: Json | null
+          moradia_poluicao?: boolean | null
+          nervosa?: Json | null
+          nivel_estresse?: string | null
+          objetivos_tratamento?: string | null
+          observacoes_profissional?: string | null
+          olhos_problemas?: Json | null
+          organization_id?: string
+          ossea_articular?: Json | null
+          paciente_id?: string
+          pancreatica?: Json | null
+          pele_problemas?: Json | null
+          porcoes_frutas?: string | null
+          porcoes_vegetais?: string | null
+          pratica_atividade_fisica?: boolean | null
+          problemas_saude_mental?: Json | null
+          profissao?: string | null
+          profissional_id?: string | null
+          pulmonar?: Json | null
+          queixa_principal?: string | null
+          renal?: Json | null
+          restricoes_alimentares?: string | null
+          rotina_cuidados_pele?: string | null
+          sexo_biologico?: string | null
+          suplementos_uso?: Json | null
+          tabagismo?: string | null
+          termo_consentimento_aceito?: boolean | null
+          tipo_atividade_fisica?: string | null
+          tipo_pele?: string | null
+          unhas_problemas?: Json | null
+          updated_at?: string | null
+          usa_cosmeticos_quimicos?: boolean | null
+          usa_panelas_aluminio?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'anamnese_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'anamnese_paciente_id_fkey'
+            columns: ['paciente_id']
+            isOneToOne: false
+            referencedRelation: 'pacientes'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'anamnese_profissional_id_fkey'
+            columns: ['profissional_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       anamneses: {
         Row: {
           alergias: string
@@ -125,6 +427,120 @@ export type Database = {
         }
         Relationships: []
       }
+      creditos_gastos: {
+        Row: {
+          created_at: string | null
+          creditos_gastos: number | null
+          descricao: string | null
+          id: string
+          organization_id: string
+          tipo_operacao: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          creditos_gastos?: number | null
+          descricao?: string | null
+          id?: string
+          organization_id: string
+          tipo_operacao?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          creditos_gastos?: number | null
+          descricao?: string | null
+          id?: string
+          organization_id?: string
+          tipo_operacao?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'creditos_gastos_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      exames: {
+        Row: {
+          arquivo_pdf_nome: string | null
+          arquivo_pdf_url: string | null
+          ativos_alterados: Json | null
+          created_at: string | null
+          data_exame: string | null
+          data_interpretacao: string | null
+          id: string
+          interpretacao_ia: string | null
+          organization_id: string
+          paciente_id: string
+          profissional_id: string | null
+          sistemas_alterados: Json | null
+          status_interpretacao: string | null
+          tamanho_arquivo: number | null
+          tipo_exame: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          arquivo_pdf_nome?: string | null
+          arquivo_pdf_url?: string | null
+          ativos_alterados?: Json | null
+          created_at?: string | null
+          data_exame?: string | null
+          data_interpretacao?: string | null
+          id?: string
+          interpretacao_ia?: string | null
+          organization_id: string
+          paciente_id: string
+          profissional_id?: string | null
+          sistemas_alterados?: Json | null
+          status_interpretacao?: string | null
+          tamanho_arquivo?: number | null
+          tipo_exame?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          arquivo_pdf_nome?: string | null
+          arquivo_pdf_url?: string | null
+          ativos_alterados?: Json | null
+          created_at?: string | null
+          data_exame?: string | null
+          data_interpretacao?: string | null
+          id?: string
+          interpretacao_ia?: string | null
+          organization_id?: string
+          paciente_id?: string
+          profissional_id?: string | null
+          sistemas_alterados?: Json | null
+          status_interpretacao?: string | null
+          tamanho_arquivo?: number | null
+          tipo_exame?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'exames_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'exames_paciente_id_fkey'
+            columns: ['paciente_id']
+            isOneToOne: false
+            referencedRelation: 'pacientes'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'exames_profissional_id_fkey'
+            columns: ['profissional_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       exames_biofisicos: {
         Row: {
           arquivo_url: string
@@ -215,39 +631,65 @@ export type Database = {
       }
       financeiro: {
         Row: {
+          agendamento_id: string | null
           created_at: string
           data_lancamento: string
           descricao: string
+          forma_pagamento: string | null
           id: string
+          organization_id: string | null
           paciente_id: string | null
           status: string
           tipo: string
+          tipo_lancamento: string | null
           updated_at: string
           valor: number
         }
         Insert: {
+          agendamento_id?: string | null
           created_at?: string
           data_lancamento?: string
           descricao: string
+          forma_pagamento?: string | null
           id?: string
+          organization_id?: string | null
           paciente_id?: string | null
           status?: string
           tipo: string
+          tipo_lancamento?: string | null
           updated_at?: string
           valor?: number
         }
         Update: {
+          agendamento_id?: string | null
           created_at?: string
           data_lancamento?: string
           descricao?: string
+          forma_pagamento?: string | null
           id?: string
+          organization_id?: string | null
           paciente_id?: string | null
           status?: string
           tipo?: string
+          tipo_lancamento?: string | null
           updated_at?: string
           valor?: number
         }
         Relationships: [
+          {
+            foreignKeyName: 'financeiro_agendamento_id_fkey'
+            columns: ['agendamento_id']
+            isOneToOne: false
+            referencedRelation: 'agendamentos'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'financeiro_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'financeiro_paciente_id_fkey'
             columns: ['paciente_id']
@@ -257,51 +699,197 @@ export type Database = {
           },
         ]
       }
+      organizations: {
+        Row: {
+          cnpj_cpf: string | null
+          created_at: string | null
+          data_inicio_assinatura: string | null
+          data_proxima_cobranca: string | null
+          email_responsavel: string | null
+          gastos_creditos_mes: number | null
+          id: string
+          nome_clinica: string
+          plano_assinatura: string | null
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+          valor_mensal: number | null
+        }
+        Insert: {
+          cnpj_cpf?: string | null
+          created_at?: string | null
+          data_inicio_assinatura?: string | null
+          data_proxima_cobranca?: string | null
+          email_responsavel?: string | null
+          gastos_creditos_mes?: number | null
+          id?: string
+          nome_clinica: string
+          plano_assinatura?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          valor_mensal?: number | null
+        }
+        Update: {
+          cnpj_cpf?: string | null
+          created_at?: string | null
+          data_inicio_assinatura?: string | null
+          data_proxima_cobranca?: string | null
+          email_responsavel?: string | null
+          gastos_creditos_mes?: number | null
+          id?: string
+          nome_clinica?: string
+          plano_assinatura?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          valor_mensal?: number | null
+        }
+        Relationships: []
+      }
+      pacientes: {
+        Row: {
+          altura: number | null
+          circunferencia_cintura: number | null
+          circunferencia_quadril: number | null
+          created_at: string | null
+          data_nascimento: string | null
+          email: string | null
+          foto_url: string | null
+          id: string
+          imc: number | null
+          nome: string
+          organization_id: string
+          peso: number | null
+          razao_cintura_quadril: number | null
+          status: string | null
+          telefone: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          altura?: number | null
+          circunferencia_cintura?: number | null
+          circunferencia_quadril?: number | null
+          created_at?: string | null
+          data_nascimento?: string | null
+          email?: string | null
+          foto_url?: string | null
+          id?: string
+          imc?: number | null
+          nome: string
+          organization_id: string
+          peso?: number | null
+          razao_cintura_quadril?: number | null
+          status?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          altura?: number | null
+          circunferencia_cintura?: number | null
+          circunferencia_quadril?: number | null
+          created_at?: string | null
+          data_nascimento?: string | null
+          email?: string | null
+          foto_url?: string | null
+          id?: string
+          imc?: number | null
+          nome?: string
+          organization_id?: string
+          peso?: number | null
+          razao_cintura_quadril?: number | null
+          status?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'pacientes_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       prescricoes: {
         Row: {
+          ativos: Json | null
           created_at: string | null
+          data_geracao_ia: string | null
+          data_geracao_pdf: string | null
           data_prescricao: string
+          descricao: string | null
           dosagem: string | null
           duracao: string | null
           editado_pelo_profissional: boolean | null
+          exame_id: string | null
           frequencia: string | null
+          gerada_por_ia: boolean | null
           gerado_por_ia: boolean | null
           id: string
           itens_prescricao: Json | null
           observacoes: string | null
+          organization_id: string | null
           paciente_id: string
+          pdf_url: string | null
+          profissional_id: string | null
           status: string | null
           tipo_prescricao: string
           updated_at: string | null
         }
         Insert: {
+          ativos?: Json | null
           created_at?: string | null
+          data_geracao_ia?: string | null
+          data_geracao_pdf?: string | null
           data_prescricao: string
+          descricao?: string | null
           dosagem?: string | null
           duracao?: string | null
           editado_pelo_profissional?: boolean | null
+          exame_id?: string | null
           frequencia?: string | null
+          gerada_por_ia?: boolean | null
           gerado_por_ia?: boolean | null
           id?: string
           itens_prescricao?: Json | null
           observacoes?: string | null
+          organization_id?: string | null
           paciente_id: string
+          pdf_url?: string | null
+          profissional_id?: string | null
           status?: string | null
           tipo_prescricao: string
           updated_at?: string | null
         }
         Update: {
+          ativos?: Json | null
           created_at?: string | null
+          data_geracao_ia?: string | null
+          data_geracao_pdf?: string | null
           data_prescricao?: string
+          descricao?: string | null
           dosagem?: string | null
           duracao?: string | null
           editado_pelo_profissional?: boolean | null
+          exame_id?: string | null
           frequencia?: string | null
+          gerada_por_ia?: boolean | null
           gerado_por_ia?: boolean | null
           id?: string
           itens_prescricao?: Json | null
           observacoes?: string | null
+          organization_id?: string | null
           paciente_id?: string
+          pdf_url?: string | null
+          profissional_id?: string | null
           status?: string | null
           tipo_prescricao?: string
           updated_at?: string | null
@@ -312,6 +900,27 @@ export type Database = {
             columns: ['paciente_id']
             isOneToOne: false
             referencedRelation: 'clientes'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'prescricoes_exame_id_fkey'
+            columns: ['exame_id']
+            isOneToOne: false
+            referencedRelation: 'exames'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'prescricoes_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'prescricoes_profissional_id_fkey'
+            columns: ['profissional_id']
+            isOneToOne: false
+            referencedRelation: 'users'
             referencedColumns: ['id']
           },
         ]
@@ -460,6 +1069,103 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          data_inicio: string | null
+          data_proxima_cobranca: string | null
+          id: string
+          organization_id: string
+          plano: string | null
+          status: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+          valor_mensal: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_inicio?: string | null
+          data_proxima_cobranca?: string | null
+          id?: string
+          organization_id: string
+          plano?: string | null
+          status?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          valor_mensal?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          data_inicio?: string | null
+          data_proxima_cobranca?: string | null
+          id?: string
+          organization_id?: string
+          plano?: string | null
+          status?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          valor_mensal?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'subscriptions_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      users: {
+        Row: {
+          ativo: boolean | null
+          created_at: string | null
+          data_nascimento: string | null
+          email: string
+          foto_url: string | null
+          id: string
+          nome: string | null
+          organization_id: string | null
+          role: string | null
+          telefone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          created_at?: string | null
+          data_nascimento?: string | null
+          email: string
+          foto_url?: string | null
+          id: string
+          nome?: string | null
+          organization_id?: string | null
+          role?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          created_at?: string | null
+          data_nascimento?: string | null
+          email?: string
+          foto_url?: string | null
+          id?: string
+          nome?: string | null
+          organization_id?: string | null
+          role?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'users_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       usuarios: {
         Row: {
           created_at: string
@@ -533,7 +1239,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_org: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
@@ -675,6 +1381,88 @@ export const Constants = {
 // --- COLUMN TYPES (actual PostgreSQL types) ---
 // Use this to know the real database type when writing migrations.
 // "string" in TypeScript types above may be uuid, text, varchar, timestamptz, etc.
+// Table: agendamentos
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   paciente_id: uuid (not null)
+//   profissional_id: uuid (nullable)
+//   tipo_procedimento: text (nullable)
+//   data_hora: timestamp with time zone (nullable)
+//   duracao_minutos: integer (nullable)
+//   numero_sessoes: integer (nullable)
+//   status: text (nullable, default: 'agendado'::text)
+//   motivo_cancelamento: text (nullable)
+//   created_at: timestamp with time zone (nullable, default: now())
+//   updated_at: timestamp with time zone (nullable, default: now())
+// Table: anamnese
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   paciente_id: uuid (not null)
+//   profissional_id: uuid (nullable)
+//   sexo_biologico: text (nullable)
+//   identidade_genero: text (nullable)
+//   profissao: text (nullable)
+//   queixa_principal: text (nullable)
+//   objetivos_tratamento: text (nullable)
+//   doencas_diagnosticadas: jsonb (nullable, default: '[]'::jsonb)
+//   medicamentos_uso: jsonb (nullable, default: '[]'::jsonb)
+//   suplementos_uso: jsonb (nullable, default: '[]'::jsonb)
+//   cirurgias_internacoes: text (nullable)
+//   alergias_sensibilidades: jsonb (nullable, default: '[]'::jsonb)
+//   historico_familiar: jsonb (nullable, default: '[]'::jsonb)
+//   cardiovascular: jsonb (nullable, default: '{}'::jsonb)
+//   gastrointestinal: jsonb (nullable, default: '{}'::jsonb)
+//   hepatica: jsonb (nullable, default: '{}'::jsonb)
+//   pancreatica: jsonb (nullable, default: '{}'::jsonb)
+//   renal: jsonb (nullable, default: '{}'::jsonb)
+//   pulmonar: jsonb (nullable, default: '{}'::jsonb)
+//   nervosa: jsonb (nullable, default: '{}'::jsonb)
+//   ossea_articular: jsonb (nullable, default: '{}'::jsonb)
+//   endocrina: jsonb (nullable, default: '{}'::jsonb)
+//   imunologica: jsonb (nullable, default: '{}'::jsonb)
+//   alimentacao_descricao: text (nullable)
+//   frequencia_ultraprocessados: text (nullable)
+//   frequencia_acucares: text (nullable)
+//   frequencia_farinaceos: text (nullable)
+//   frequencia_frituras: text (nullable)
+//   frequencia_carnes_vermelhas: text (nullable)
+//   frequencia_peixes: text (nullable)
+//   porcoes_frutas: text (nullable)
+//   porcoes_vegetais: text (nullable)
+//   consome_laticinios: boolean (nullable)
+//   consome_gluten: boolean (nullable)
+//   restricoes_alimentares: text (nullable)
+//   consumo_agua_litros: numeric (nullable)
+//   bebidas_acucaradas: text (nullable)
+//   consumo_cafe: text (nullable)
+//   horas_sono: numeric (nullable)
+//   dificuldade_sono: jsonb (nullable, default: '[]'::jsonb)
+//   nivel_estresse: text (nullable)
+//   fontes_estresse: jsonb (nullable, default: '[]'::jsonb)
+//   problemas_saude_mental: jsonb (nullable, default: '[]'::jsonb)
+//   hobbies_relaxantes: text (nullable)
+//   pratica_atividade_fisica: boolean (nullable)
+//   tipo_atividade_fisica: text (nullable)
+//   frequencia_atividade: text (nullable)
+//   duracao_atividade: text (nullable)
+//   tabagismo: text (nullable)
+//   consumo_alcool: text (nullable)
+//   exposicao_quimicos: boolean (nullable)
+//   moradia_poluicao: boolean (nullable)
+//   usa_cosmeticos_quimicos: boolean (nullable)
+//   usa_panelas_aluminio: boolean (nullable)
+//   pele_problemas: jsonb (nullable, default: '[]'::jsonb)
+//   tipo_pele: text (nullable)
+//   rotina_cuidados_pele: text (nullable)
+//   cabelo_problemas: jsonb (nullable, default: '[]'::jsonb)
+//   unhas_problemas: jsonb (nullable, default: '[]'::jsonb)
+//   corporal_problemas: jsonb (nullable, default: '[]'::jsonb)
+//   olhos_problemas: jsonb (nullable, default: '[]'::jsonb)
+//   observacoes_profissional: text (nullable)
+//   termo_consentimento_aceito: boolean (nullable, default: false)
+//   data_termo_consentimento: timestamp with time zone (nullable)
+//   created_at: timestamp with time zone (nullable, default: now())
+//   updated_at: timestamp with time zone (nullable, default: now())
 // Table: anamneses
 //   id: uuid (not null, default: gen_random_uuid())
 //   cliente_id: uuid (not null)
@@ -707,6 +1495,30 @@ export const Constants = {
 //   created_at: timestamp with time zone (nullable, default: now())
 //   updated_at: timestamp with time zone (nullable, default: now())
 //   sessoes_contratadas: integer (nullable, default: 0)
+// Table: creditos_gastos
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   tipo_operacao: text (nullable)
+//   creditos_gastos: numeric (nullable)
+//   descricao: text (nullable)
+//   created_at: timestamp with time zone (nullable, default: now())
+// Table: exames
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   paciente_id: uuid (not null)
+//   profissional_id: uuid (nullable)
+//   tipo_exame: text (nullable)
+//   data_exame: date (nullable)
+//   arquivo_pdf_url: text (nullable)
+//   arquivo_pdf_nome: text (nullable)
+//   tamanho_arquivo: numeric (nullable)
+//   interpretacao_ia: text (nullable)
+//   status_interpretacao: text (nullable, default: 'pendente'::text)
+//   data_interpretacao: timestamp with time zone (nullable)
+//   sistemas_alterados: jsonb (nullable, default: '[]'::jsonb)
+//   ativos_alterados: jsonb (nullable, default: '[]'::jsonb)
+//   created_at: timestamp with time zone (nullable, default: now())
+//   updated_at: timestamp with time zone (nullable, default: now())
 // Table: exames_biofisicos
 //   id: uuid (not null, default: gen_random_uuid())
 //   paciente_id: uuid (not null)
@@ -737,6 +1549,43 @@ export const Constants = {
 //   status: text (not null, default: 'Pendente'::text)
 //   created_at: timestamp with time zone (not null, default: now())
 //   updated_at: timestamp with time zone (not null, default: now())
+//   organization_id: uuid (nullable)
+//   tipo_lancamento: text (nullable)
+//   forma_pagamento: text (nullable)
+//   agendamento_id: uuid (nullable)
+// Table: organizations
+//   id: uuid (not null, default: gen_random_uuid())
+//   nome_clinica: text (not null)
+//   cnpj_cpf: text (nullable)
+//   email_responsavel: text (nullable)
+//   plano_assinatura: text (nullable)
+//   data_inicio_assinatura: timestamp with time zone (nullable)
+//   data_proxima_cobranca: timestamp with time zone (nullable)
+//   status: text (nullable, default: 'ativo'::text)
+//   gastos_creditos_mes: numeric (nullable, default: 0)
+//   stripe_customer_id: text (nullable)
+//   stripe_subscription_id: text (nullable)
+//   valor_mensal: numeric (nullable, default: 0)
+//   created_at: timestamp with time zone (nullable, default: now())
+//   updated_at: timestamp with time zone (nullable, default: now())
+// Table: pacientes
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   user_id: uuid (nullable)
+//   nome: text (not null)
+//   email: text (nullable)
+//   telefone: text (nullable)
+//   data_nascimento: date (nullable)
+//   peso: numeric (nullable)
+//   altura: numeric (nullable)
+//   imc: numeric (nullable)
+//   circunferencia_cintura: numeric (nullable)
+//   circunferencia_quadril: numeric (nullable)
+//   razao_cintura_quadril: numeric (nullable)
+//   foto_url: text (nullable)
+//   status: text (nullable, default: 'ativo'::text)
+//   created_at: timestamp with time zone (nullable, default: now())
+//   updated_at: timestamp with time zone (nullable, default: now())
 // Table: prescricoes
 //   id: uuid (not null, default: gen_random_uuid())
 //   paciente_id: uuid (not null)
@@ -752,6 +1601,15 @@ export const Constants = {
 //   status: text (nullable, default: 'Rascunho'::text)
 //   gerado_por_ia: boolean (nullable, default: false)
 //   editado_pelo_profissional: boolean (nullable, default: false)
+//   organization_id: uuid (nullable)
+//   exame_id: uuid (nullable)
+//   profissional_id: uuid (nullable)
+//   descricao: text (nullable)
+//   ativos: jsonb (nullable, default: '[]'::jsonb)
+//   gerada_por_ia: boolean (nullable, default: false)
+//   data_geracao_ia: timestamp with time zone (nullable)
+//   pdf_url: text (nullable)
+//   data_geracao_pdf: timestamp with time zone (nullable)
 // Table: protocolos_limpeza
 //   id: uuid (not null, default: gen_random_uuid())
 //   paciente_id: uuid (not null)
@@ -786,6 +1644,29 @@ export const Constants = {
 //   evolucao_clinica: text (nullable)
 //   created_at: timestamp with time zone (nullable, default: now())
 //   updated_at: timestamp with time zone (nullable, default: now())
+// Table: subscriptions
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   stripe_subscription_id: text (nullable)
+//   plano: text (nullable)
+//   valor_mensal: numeric (nullable)
+//   data_inicio: timestamp with time zone (nullable)
+//   data_proxima_cobranca: timestamp with time zone (nullable)
+//   status: text (nullable)
+//   created_at: timestamp with time zone (nullable, default: now())
+//   updated_at: timestamp with time zone (nullable, default: now())
+// Table: users
+//   id: uuid (not null)
+//   organization_id: uuid (nullable)
+//   email: text (not null)
+//   nome: text (nullable)
+//   role: text (nullable, default: 'profissional'::text)
+//   telefone: text (nullable)
+//   data_nascimento: date (nullable)
+//   foto_url: text (nullable)
+//   ativo: boolean (nullable, default: true)
+//   created_at: timestamp with time zone (nullable, default: now())
+//   updated_at: timestamp with time zone (nullable, default: now())
 // Table: usuarios
 //   id: uuid (not null)
 //   email: text (not null)
@@ -804,6 +1685,16 @@ export const Constants = {
 //   updated_at: timestamp with time zone (nullable, default: now())
 
 // --- CONSTRAINTS ---
+// Table: agendamentos
+//   FOREIGN KEY agendamentos_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   FOREIGN KEY agendamentos_paciente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE
+//   PRIMARY KEY agendamentos_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY agendamentos_profissional_id_fkey: FOREIGN KEY (profissional_id) REFERENCES users(id) ON DELETE SET NULL
+// Table: anamnese
+//   FOREIGN KEY anamnese_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   FOREIGN KEY anamnese_paciente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE
+//   PRIMARY KEY anamnese_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY anamnese_profissional_id_fkey: FOREIGN KEY (profissional_id) REFERENCES users(id) ON DELETE SET NULL
 // Table: anamneses
 //   FOREIGN KEY anamneses_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   UNIQUE anamneses_cliente_id_key: UNIQUE (cliente_id)
@@ -811,6 +1702,14 @@ export const Constants = {
 // Table: clientes
 //   PRIMARY KEY clientes_pkey: PRIMARY KEY (id)
 //   CHECK clientes_status_check: CHECK ((status = ANY (ARRAY['Ativo'::text, 'Inativo'::text])))
+// Table: creditos_gastos
+//   FOREIGN KEY creditos_gastos_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   PRIMARY KEY creditos_gastos_pkey: PRIMARY KEY (id)
+// Table: exames
+//   FOREIGN KEY exames_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   FOREIGN KEY exames_paciente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE
+//   PRIMARY KEY exames_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY exames_profissional_id_fkey: FOREIGN KEY (profissional_id) REFERENCES users(id) ON DELETE SET NULL
 // Table: exames_biofisicos
 //   FOREIGN KEY exames_biofisicos_cliente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   PRIMARY KEY exames_biofisicos_pkey: PRIMARY KEY (id)
@@ -820,13 +1719,24 @@ export const Constants = {
 //   PRIMARY KEY exames_bioquimicos_pkey: PRIMARY KEY (id)
 //   CHECK exames_bioquimicos_status_check: CHECK ((status = ANY (ARRAY['Pendente'::text, 'Interpretado'::text])))
 // Table: financeiro
+//   FOREIGN KEY financeiro_agendamento_id_fkey: FOREIGN KEY (agendamento_id) REFERENCES agendamentos(id) ON DELETE SET NULL
+//   FOREIGN KEY financeiro_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 //   FOREIGN KEY financeiro_paciente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES clientes(id) ON DELETE SET NULL
 //   PRIMARY KEY financeiro_pkey: PRIMARY KEY (id)
 //   CHECK financeiro_status_check: CHECK ((status = ANY (ARRAY['Pendente'::text, 'Pago'::text])))
 //   CHECK financeiro_tipo_check: CHECK ((tipo = ANY (ARRAY['Receita'::text, 'Despesa'::text])))
+// Table: organizations
+//   PRIMARY KEY organizations_pkey: PRIMARY KEY (id)
+// Table: pacientes
+//   FOREIGN KEY pacientes_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   PRIMARY KEY pacientes_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY pacientes_user_id_fkey: FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE SET NULL
 // Table: prescricoes
 //   FOREIGN KEY prescricoes_cliente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES clientes(id) ON DELETE CASCADE
+//   FOREIGN KEY prescricoes_exame_id_fkey: FOREIGN KEY (exame_id) REFERENCES exames(id) ON DELETE SET NULL
+//   FOREIGN KEY prescricoes_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 //   PRIMARY KEY prescricoes_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY prescricoes_profissional_id_fkey: FOREIGN KEY (profissional_id) REFERENCES users(id) ON DELETE SET NULL
 //   CHECK prescricoes_status_check: CHECK ((status = ANY (ARRAY['Rascunho'::text, 'Finalizada'::text])))
 //   CHECK prescricoes_tipo_prescricao_check: CHECK ((tipo_prescricao = ANY (ARRAY['Suplementação'::text, 'Protocolo'::text, 'Recomendação'::text])))
 // Table: protocolos_limpeza
@@ -842,6 +1752,13 @@ export const Constants = {
 //   FOREIGN KEY sessoes_cliente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   PRIMARY KEY sessoes_pkey: PRIMARY KEY (id)
 //   CHECK sessoes_status_check: CHECK ((status = ANY (ARRAY['Agendada'::text, 'Realizada'::text, 'Cancelada'::text])))
+// Table: subscriptions
+//   FOREIGN KEY subscriptions_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   PRIMARY KEY subscriptions_pkey: PRIMARY KEY (id)
+// Table: users
+//   FOREIGN KEY users_id_fkey: FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE
+//   FOREIGN KEY users_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   PRIMARY KEY users_pkey: PRIMARY KEY (id)
 // Table: usuarios
 //   FOREIGN KEY usuarios_id_fkey: FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE
 //   PRIMARY KEY usuarios_pkey: PRIMARY KEY (id)
@@ -851,6 +1768,12 @@ export const Constants = {
 //   PRIMARY KEY vendas_pkey: PRIMARY KEY (id)
 
 // --- ROW LEVEL SECURITY POLICIES ---
+// Table: agendamentos
+//   Policy "agendamentos_isolation" (ALL, PERMISSIVE) roles={public}
+//     USING: (organization_id = get_current_user_org())
+// Table: anamnese
+//   Policy "anamnese_isolation" (ALL, PERMISSIVE) roles={public}
+//     USING: (organization_id = get_current_user_org())
 // Table: anamneses
 //   Policy "authenticated_delete_anamneses" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: true
@@ -871,6 +1794,12 @@ export const Constants = {
 //   Policy "authenticated_update_clientes" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
+// Table: creditos_gastos
+//   Policy "creditos_isolation" (ALL, PERMISSIVE) roles={public}
+//     USING: (organization_id = get_current_user_org())
+// Table: exames
+//   Policy "exames_isolation" (ALL, PERMISSIVE) roles={public}
+//     USING: (organization_id = get_current_user_org())
 // Table: exames_biofisicos
 //   Policy "authenticated_delete_exames_biofisicos" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: true
@@ -901,6 +1830,14 @@ export const Constants = {
 //   Policy "authenticated_update_financeiro" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
+//   Policy "financeiro_isolation" (ALL, PERMISSIVE) roles={public}
+//     USING: (organization_id = get_current_user_org())
+// Table: organizations
+//   Policy "org_isolation" (ALL, PERMISSIVE) roles={public}
+//     USING: (id = get_current_user_org())
+// Table: pacientes
+//   Policy "pacientes_isolation" (ALL, PERMISSIVE) roles={public}
+//     USING: (organization_id = get_current_user_org())
 // Table: prescricoes
 //   Policy "authenticated_delete_prescricoes" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: true
@@ -911,6 +1848,8 @@ export const Constants = {
 //   Policy "authenticated_update_prescricoes" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
+//   Policy "prescricoes_isolation" (ALL, PERMISSIVE) roles={public}
+//     USING: (organization_id = get_current_user_org())
 // Table: protocolos_limpeza
 //   Policy "authenticated_delete_protocolos" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: true
@@ -941,6 +1880,12 @@ export const Constants = {
 //   Policy "authenticated_update_sessoes" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
+// Table: subscriptions
+//   Policy "subscriptions_isolation" (ALL, PERMISSIVE) roles={public}
+//     USING: (organization_id = get_current_user_org())
+// Table: users
+//   Policy "users_isolation" (ALL, PERMISSIVE) roles={public}
+//     USING: ((organization_id = get_current_user_org()) OR (id = auth.uid()))
 // Table: usuarios
 //   Policy "authenticated_select_usuarios" (SELECT, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = id)
@@ -956,6 +1901,18 @@ export const Constants = {
 //     WITH CHECK: true
 
 // --- DATABASE FUNCTIONS ---
+// FUNCTION get_current_user_org()
+//   CREATE OR REPLACE FUNCTION public.get_current_user_org()
+//    RETURNS uuid
+//    LANGUAGE plpgsql
+//    SECURITY DEFINER
+//    SET search_path TO 'public'
+//   AS $function$
+//   BEGIN
+//       RETURN (SELECT organization_id FROM public.users WHERE id = auth.uid() LIMIT 1);
+//   END;
+//   $function$
+//
 // FUNCTION handle_new_user_sync()
 //   CREATE OR REPLACE FUNCTION public.handle_new_user_sync()
 //    RETURNS trigger
@@ -1091,5 +2048,34 @@ export const Constants = {
 //   trigger_update_vendas_modtime: CREATE TRIGGER trigger_update_vendas_modtime BEFORE UPDATE ON public.vendas FOR EACH ROW EXECUTE FUNCTION update_vendas_modtime()
 
 // --- INDEXES ---
+// Table: agendamentos
+//   CREATE INDEX idx_agendamentos_org_id ON public.agendamentos USING btree (organization_id)
+//   CREATE INDEX idx_agendamentos_paciente_id ON public.agendamentos USING btree (paciente_id)
+//   CREATE INDEX idx_agendamentos_profissional_id ON public.agendamentos USING btree (profissional_id)
+// Table: anamnese
+//   CREATE INDEX idx_anamnese_org_id ON public.anamnese USING btree (organization_id)
+//   CREATE INDEX idx_anamnese_paciente_id ON public.anamnese USING btree (paciente_id)
+//   CREATE INDEX idx_anamnese_profissional_id ON public.anamnese USING btree (profissional_id)
 // Table: anamneses
 //   CREATE UNIQUE INDEX anamneses_cliente_id_key ON public.anamneses USING btree (cliente_id)
+// Table: creditos_gastos
+//   CREATE INDEX idx_creditos_gastos_org_id ON public.creditos_gastos USING btree (organization_id)
+// Table: exames
+//   CREATE INDEX idx_exames_org_id ON public.exames USING btree (organization_id)
+//   CREATE INDEX idx_exames_paciente_id ON public.exames USING btree (paciente_id)
+//   CREATE INDEX idx_exames_profissional_id ON public.exames USING btree (profissional_id)
+// Table: financeiro
+//   CREATE INDEX idx_financeiro_agendamento_id ON public.financeiro USING btree (agendamento_id)
+//   CREATE INDEX idx_financeiro_org_id ON public.financeiro USING btree (organization_id)
+//   CREATE INDEX idx_financeiro_paciente_id ON public.financeiro USING btree (paciente_id)
+// Table: pacientes
+//   CREATE INDEX idx_pacientes_org_id ON public.pacientes USING btree (organization_id)
+//   CREATE INDEX idx_pacientes_user_id ON public.pacientes USING btree (user_id)
+// Table: prescricoes
+//   CREATE INDEX idx_prescricoes_org_id ON public.prescricoes USING btree (organization_id)
+//   CREATE INDEX idx_prescricoes_paciente_id ON public.prescricoes USING btree (paciente_id)
+//   CREATE INDEX idx_prescricoes_profissional_id ON public.prescricoes USING btree (profissional_id)
+// Table: subscriptions
+//   CREATE INDEX idx_subscriptions_org_id ON public.subscriptions USING btree (organization_id)
+// Table: users
+//   CREATE INDEX idx_users_org_id ON public.users USING btree (organization_id)

@@ -3,8 +3,11 @@ import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { AppProvider } from '@/context/AppContext'
+import { AuthProvider } from '@/hooks/use-auth'
 import Layout from '@/components/Layout'
 import Index from '@/pages/Index'
+import Signup from '@/pages/Signup'
+import ForgotPassword from '@/pages/ForgotPassword'
 import AdminDashboard from '@/pages/admin/AdminDashboard'
 import ProfDashboard from '@/pages/professional/ProfDashboard'
 import ProfPatients from '@/pages/professional/ProfPatients'
@@ -14,23 +17,27 @@ import NotFound from '@/pages/NotFound'
 
 const App = () => (
   <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
-    <AppProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Index />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/prof/dashboard" element={<ProfDashboard />} />
-            <Route path="/prof/pacientes" element={<ProfPatients />} />
-            <Route path="/prof/agenda" element={<ProfAgenda />} />
-            <Route path="/paciente/dashboard" element={<PatientDashboard />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </TooltipProvider>
-    </AppProvider>
+    <AuthProvider>
+      <AppProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Index />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/prof/dashboard" element={<ProfDashboard />} />
+              <Route path="/prof/pacientes" element={<ProfPatients />} />
+              <Route path="/prof/agenda" element={<ProfAgenda />} />
+              <Route path="/paciente/dashboard" element={<PatientDashboard />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TooltipProvider>
+      </AppProvider>
+    </AuthProvider>
   </BrowserRouter>
 )
 

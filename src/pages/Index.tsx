@@ -1,34 +1,64 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useApp, Role } from '@/context/AppContext'
+import { useState, useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { useToast } from '@/hooks/use-toast'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
+
+const loginSchema = z.object({
+  email: z.string().email({ message: 'E-mail inválido' }),
+  password: z.string().min(6, { message: 'A senha é obrigatória' }),
+})
 
 export default function Index() {
-  const [selectedRole, setSelectedRole] = useState<Role>('professional')
-  const [loading, setLoading] = useState(false)
-  const { login } = useApp()
+  const [isLoading, setIsLoading] = useState(false)
+  const { signIn, user, profile } = useAuth()
   const navigate = useNavigate()
+  const { toast } = useToast()
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
 
-    setTimeout(() => {
-      login(selectedRole)
-      if (selectedRole === 'admin') navigate('/admin/dashboard')
-      else if (selectedRole === 'professional') navigate('/prof/dashboard')
-      else navigate('/paciente/dashboard')
-    }, 800)
+  // Handle redirection if already logged in and profile is loaded
+  useEffect(() => {
+    if (user && profile) {
+      if (profile.role === 'admin') navigate('/admin/dashboard', { replace: true })
+      else if (profile.role === 'profissional') navigate('/prof/dashboard', { replace: true })
+      else navigate('/paciente/dashboard', { replace: true })
+    }
+  }, [user, profile, navigate])
+
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+    setIsLoading(true)
+    const { error } = await signIn(data.email, data.password)
+
+    if (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao entrar',
+        description: 'Credenciais inválidas. Verifique seu e-mail e senha.',
+      })
+      setIsLoading(false)
+    }
+    // If successful, the useEffect above will trigger the redirect once profile loads
   }
 
   return (
@@ -44,62 +74,76 @@ export default function Index() {
           <p className="text-blue-200 mt-2">Saúde Integrativa & Gestão Premium</p>
         </div>
 
-        <Card className="glass-card border-none shadow-2xl">
+        <Card className="glass-card border-none shadow-2xl bg-white/95 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-brand">Acesso ao Sistema</CardTitle>
             <CardDescription className="text-center">
-              Simule o acesso escolhendo um perfil abaixo.
+              Entre com suas credenciais para continuar.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="nome@exemplo.com"
-                  defaultValue="demo@kronosgest.com"
-                  required
-                  className="bg-slate-50"
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>E-mail</FormLabel>
+                      <FormControl>
+                        <Input placeholder="nome@exemplo.com" {...field} className="bg-white" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  defaultValue="123456"
-                  required
-                  className="bg-slate-50"
-                />
-              </div>
 
-              <div className="space-y-2 pt-2 border-t">
-                <Label className="text-gold font-medium">Simulador de Papel</Label>
-                <Select
-                  value={selectedRole || ''}
-                  onValueChange={(v) => setSelectedRole(v as Role)}
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <FormLabel>Senha</FormLabel>
+                        <Link to="/forgot-password" className="text-xs text-brand hover:underline">
+                          Esqueceu a senha?
+                        </Link>
+                      </div>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          {...field}
+                          className="bg-white"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold text-white font-medium h-12 shadow-md transition-all duration-300 mt-2"
+                  disabled={isLoading}
                 >
-                  <SelectTrigger className="border-gold/50 focus:ring-gold">
-                    <SelectValue placeholder="Selecione o papel" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Administrador (Plataforma)</SelectItem>
-                    <SelectItem value="professional">Profissional de Saúde</SelectItem>
-                    <SelectItem value="patient">Paciente</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Entrando...
+                    </>
+                  ) : (
+                    'Entrar no KronosGest'
+                  )}
+                </Button>
+              </form>
+            </Form>
 
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold text-white font-medium h-12 shadow-md transition-all duration-300"
-                disabled={loading}
-              >
-                {loading ? 'Entrando...' : 'Entrar no KronosGest'}
-              </Button>
-            </form>
+            <div className="mt-6 text-center text-sm text-slate-500">
+              Não tem uma conta?{' '}
+              <Link to="/signup" className="text-brand font-medium hover:underline">
+                Cadastre-se
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>

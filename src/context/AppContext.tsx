@@ -2,12 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react'
 import { Appointment, initialAppointments, AppointmentStatus } from '@/lib/mockData'
 import { toast } from '@/hooks/use-toast'
 
-export type Role = 'admin' | 'professional' | 'patient' | null
-
 interface AppContextType {
-  role: Role
-  login: (role: Role) => void
-  logout: () => void
   appointments: Appointment[]
   updateAppointmentStatus: (id: string, status: AppointmentStatus) => void
 }
@@ -15,16 +10,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [role, setRole] = useState<Role>(null)
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments)
-
-  const login = (newRole: Role) => {
-    setRole(newRole)
-  }
-
-  const logout = () => {
-    setRole(null)
-  }
 
   const updateAppointmentStatus = (id: string, status: AppointmentStatus) => {
     setAppointments((prev) => prev.map((app) => (app.id === id ? { ...app, status } : app)))
@@ -44,7 +30,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   return React.createElement(
     AppContext.Provider,
-    { value: { role, login, logout, appointments, updateAppointmentStatus } },
+    { value: { appointments, updateAppointmentStatus } },
     children,
   )
 }
