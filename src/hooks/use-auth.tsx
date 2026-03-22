@@ -36,39 +36,63 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Initialization and auth state listener
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (!session?.user) setLoading(false) // Only stop loading if no user, otherwise profile effect handles it
+    let isMounted = true
+
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Error getting session:', error.message)
+      }
+      if (isMounted) {
+        setSession(session)
+        setUser(session?.user ?? null)
+        if (!session?.user) setLoading(false)
+      }
     })
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (!session?.user) {
-        setProfile(null)
-        setLoading(false)
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (isMounted) {
+        setSession(session)
+        setUser(session?.user ?? null)
+
+        if (event === 'SIGNED_OUT' || !session?.user) {
+          setProfile(null)
+          setLoading(false)
+        }
+
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('Sessão renovada com sucesso.')
+        }
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
-  // Fetch profile when user changes
+  // Fetch profile when user or session token changes
   useEffect(() => {
     let isMounted = true
     const loadProfile = async () => {
       if (!user) return
 
-      const { data, error } = await supabase.from('users').select('*').eq('id', user.id).single()
+      try {
+        const { data, error } = await supabase.from('users').select('*').eq('id', user.id).single()
 
-      if (isMounted) {
-        if (!error && data) {
-          setProfile(data as UserProfile)
+        if (isMounted) {
+          if (!error && data) {
+            setProfile(data as UserProfile)
+          } else if (error) {
+            console.error('Erro ao carregar perfil:', error.message)
+          }
+          setLoading(false)
         }
-        setLoading(false)
+      } catch (err) {
+        console.error('Erro inesperado ao carregar perfil:', err)
+        if (isMounted) setLoading(false)
       }
     }
 
@@ -76,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       isMounted = false
     }
-  }, [user])
+  }, [user, session?.access_token])
 
   const signUp = async (email: string, password: string, metaData: any) => {
     const { error } = await supabase.auth.signUp({
@@ -88,7 +112,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
     })
 
-    // Ignore "Error sending confirmation email" as user is created anyway
     if (error?.message === 'Error sending confirmation email') {
       return { error: null }
     }
