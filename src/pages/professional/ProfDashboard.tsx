@@ -1,16 +1,63 @@
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useApp } from '@/context/AppContext'
-import { Users, Calendar as CalendarIcon, Zap, Crown, CheckCircle2, XCircle } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+import { supabase } from '@/lib/supabase/client'
+import {
+  Building2,
+  Users,
+  Calendar as CalendarIcon,
+  Zap,
+  Crown,
+  CheckCircle2,
+  XCircle,
+} from 'lucide-react'
 
 export default function ProfDashboard() {
   const { appointments, updateAppointmentStatus } = useApp()
+  const { profile } = useAuth()
+  const [orgName, setOrgName] = useState<string>('')
+
   const todayAppointments = appointments.filter((a) => a.date === 'Hoje')
+
+  useEffect(() => {
+    async function fetchOrg() {
+      if (profile?.organization_id) {
+        const { data, error } = await supabase
+          .from('organizations')
+          .select('nome_clinica')
+          .eq('id', profile.organization_id)
+          .single()
+
+        if (data && !error) {
+          setOrgName(data.nome_clinica)
+        }
+      }
+    }
+    fetchOrg()
+  }, [profile?.organization_id])
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Header de Boas-vindas */}
+      <div className="flex flex-col gap-1 mb-6 animate-slide-up">
+        <h1 className="text-3xl font-bold tracking-tight text-brand">
+          Bem-vinda, {profile?.nome?.split(' ')[0] || 'Morgana'}!
+        </h1>
+        {orgName && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Building2 className="h-5 w-5 text-gold" />
+            <span className="text-lg font-medium">{orgName}</span>
+          </div>
+        )}
+      </div>
+
+      <div
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-slide-up"
+        style={{ animationDelay: '100ms' }}
+      >
         <Card className="hover-lift border-t-4 border-t-brand">
           <CardContent className="pt-6">
             <div className="flex justify-between items-start">
@@ -68,7 +115,10 @@ export default function ProfDashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div
+        className="grid gap-6 md:grid-cols-3 animate-slide-up"
+        style={{ animationDelay: '200ms' }}
+      >
         <Card className="md:col-span-2 shadow-sm border-slate-200">
           <CardHeader className="border-b bg-slate-50/50 pb-4">
             <div className="flex items-center justify-between">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
+import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -65,11 +66,22 @@ export default function Signup() {
   const onSubmit = async (data: z.infer<typeof signupSchema>) => {
     setIsLoading(true)
 
+    let finalOrgId = data.organization_id || null
+
+    // Automatically assign to first organization if left blank (useful for auto-association)
+    if (!finalOrgId) {
+      const { data: orgData } = await supabase.from('organizations').select('id').limit(1).single()
+
+      if (orgData) {
+        finalOrgId = orgData.id
+      }
+    }
+
     // Pass custom metadata for the trigger to pick up
     const { error } = await signUp(data.email, data.password, {
       nome: data.nome,
       role: data.role,
-      organization_id: data.organization_id || null,
+      organization_id: finalOrgId,
     })
 
     setIsLoading(false)
