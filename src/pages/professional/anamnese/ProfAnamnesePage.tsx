@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ArrowLeft, Save, Eraser, Loader2, ClipboardList } from 'lucide-react'
+import { ArrowLeft, Save, Eraser, Loader2, ClipboardList, History, Plus, Edit3 } from 'lucide-react'
 
 import { PersonalTab } from './tabs/PersonalTab'
 import { HealthTab } from './tabs/HealthTab'
@@ -38,8 +38,11 @@ export default function ProfAnamnesePage() {
   const { toast } = useToast()
 
   const [patients, setPatients] = useState<any[]>([])
+  const [history, setHistory] = useState<any[]>([])
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string>('new')
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('pessoal')
+  const [isReadOnly, setIsReadOnly] = useState(false)
 
   const form = useForm<AnamneseFormValues>({
     resolver: zodResolver(anamneseSchema),
@@ -67,6 +70,7 @@ export default function ProfAnamnesePage() {
     },
   })
 
+  // Load Patients list
   useEffect(() => {
     async function loadPatients() {
       if (!profile?.organization_id) return
@@ -79,29 +83,103 @@ export default function ProfAnamnesePage() {
       if (data) {
         setPatients(data)
         if (pacienteId) {
-          const selected = data.find((p) => p.id === pacienteId)
-          if (selected) {
-            form.reset({
-              ...form.getValues(),
-              paciente_id: selected.id,
-              peso: selected.peso || undefined,
-              altura: selected.altura || undefined,
-              imc: selected.imc || undefined,
-              circunferencia_cintura: selected.circunferencia_cintura || undefined,
-              circunferencia_quadril: selected.circunferencia_quadril || undefined,
-            })
-          }
+          form.setValue('paciente_id', pacienteId)
         }
       }
     }
     loadPatients()
   }, [profile?.organization_id, pacienteId, form])
 
+  // Load History when patient changes
+  const selectedPatientId = form.watch('paciente_id')
+  useEffect(() => {
+    async function loadHistory() {
+      if (!selectedPatientId || !profile?.organization_id) {
+        setHistory([])
+        return
+      }
+      const { data } = await supabase
+        .from('anamnese')
+        .select('id, created_at')
+        .eq('paciente_id', selectedPatientId)
+        .eq('organization_id', profile.organization_id)
+        .order('created_at', { ascending: false })
+
+      if (data) {
+        setHistory(data)
+      }
+    }
+    loadHistory()
+  }, [selectedPatientId, profile?.organization_id])
+
+  // Load specific anamnesis data when history item is selected
+  useEffect(() => {
+    async function fetchAnamnese() {
+      if (selectedHistoryId === 'new') {
+        // Reset to default but keep patient
+        const currentPatientId = form.getValues('paciente_id')
+        form.reset({
+          ...form.getValues(),
+          paciente_id: currentPatientId,
+        })
+        setIsReadOnly(false)
+        return
+      }
+
+      setIsLoading(true)
+      const { data, error } = await supabase
+        .from('anamnese')
+        .select('*')
+        .eq('id', selectedHistoryId)
+        .single()
+
+      if (data) {
+        form.reset({
+          paciente_id: data.paciente_id,
+          queixa_principal: data.queixa_principal || undefined,
+          objetivos_tratamento: data.objetivos_tratamento || undefined,
+          doencas_diagnosticadas: data.doencas_diagnosticadas || [],
+          medicamentos_uso: data.medicamentos_uso?.[0] || undefined,
+          alergias_sensibilidades: data.alergias_sensibilidades || [],
+          historico_familiar: data.historico_familiar || [],
+          cardiovascular: data.cardiovascular || [],
+          gastrointestinal: data.gastrointestinal || [],
+          hepatica: data.hepatica || [],
+          pancreatica: data.pancreatica || [],
+          renal: data.renal || [],
+          pulmonar: data.pulmonar || [],
+          nervosa: data.nervosa || [],
+          ossea_articular: data.ossea_articular || [],
+          endocrina: data.endocrina || [],
+          imunologica: data.imunologica || [],
+          alimentacao_descricao: data.alimentacao_descricao || undefined,
+          consumo_agua_litros: data.consumo_agua_litros || undefined,
+          horas_sono: data.horas_sono || undefined,
+          nivel_estresse: data.nivel_estresse || undefined,
+          pratica_atividade_fisica: data.pratica_atividade_fisica || false,
+          tabagismo: data.tabagismo || undefined,
+          consumo_alcool: data.consumo_alcool || undefined,
+          pele_problemas: data.pele_problemas || [],
+          cabelo_problemas: data.cabelo_problemas || [],
+          unhas_problemas: data.unhas_problemas || [],
+          corporal_problemas: data.corporal_problemas || [],
+          olhos_problemas: data.olhos_problemas || [],
+          observacoes_profissional: data.observacoes_profissional || undefined,
+        })
+        setIsReadOnly(true) // Default to read-only when viewing history
+      }
+      setIsLoading(false)
+    }
+
+    if (selectedHistoryId) fetchAnamnese()
+  }, [selectedHistoryId, form])
+
   const onSubmit = async (data: AnamneseFormValues) => {
     if (!profile?.organization_id || !user?.id) return
     setIsLoading(true)
 
     try {
+      // Update patient stats if provided
       if (
         data.peso ||
         data.altura ||
@@ -162,10 +240,31 @@ export default function ProfAnamnesePage() {
         observacoes_profissional: data.observacoes_profissional || null,
       }
 
-      const { error } = await supabase.from('anamnese').insert([payload])
-      if (error) throw error
+      if (selectedHistoryId !== 'new' && !isReadOnly) {
+        // Update existing
+        const { error } = await supabase
+          .from('anamnese')
+          .update(payload)
+          .eq('id', selectedHistoryId)
+        if (error) throw error
+        toast({ title: 'Sucesso', description: 'Anamnese atualizada com sucesso!' })
+      } else {
+        // Insert new
+        const { error } = await supabase.from('anamnese').insert([payload])
+        if (error) throw error
+        toast({ title: 'Sucesso', description: 'Nova anamnese registrada com sucesso!' })
+      }
 
-      toast({ title: 'Sucesso', description: 'Anamnese registrada com sucesso!' })
+      // Refresh history
+      const { data: newHistory } = await supabase
+        .from('anamnese')
+        .select('id, created_at')
+        .eq('paciente_id', data.paciente_id)
+        .order('created_at', { ascending: false })
+      if (newHistory) setHistory(newHistory)
+
+      setSelectedHistoryId('new')
+      setIsReadOnly(false)
       navigate('/prof/dashboard')
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Erro ao salvar', description: error.message })
@@ -177,6 +276,8 @@ export default function ProfAnamnesePage() {
   const handleClear = () => {
     if (window.confirm('Tem certeza que deseja limpar todos os dados preenchidos?')) {
       form.reset()
+      setSelectedHistoryId('new')
+      setIsReadOnly(false)
       toast({ description: 'Formulário limpo.' })
     }
   }
@@ -198,42 +299,56 @@ export default function ProfAnamnesePage() {
               <ClipboardList className="h-6 w-6 text-gold" /> Anamnese Integrativa
             </h2>
             <p className="text-muted-foreground text-sm">
-              Preencha o formulário detalhado para avaliação inicial.
+              {isReadOnly
+                ? 'Modo de Visualização - Histórico'
+                : 'Preencha o formulário detalhado para avaliação inicial.'}
             </p>
           </div>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClear}
-            className="flex-1 sm:flex-none text-slate-600"
-          >
-            <Eraser className="mr-2 h-4 w-4" /> Limpar Formulário
-          </Button>
-          <Button
-            onClick={form.handleSubmit(onSubmit)}
-            disabled={isLoading}
-            className="flex-1 sm:flex-none bg-brand hover:bg-brand/90 text-white shadow-md"
-          >
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            Salvar Anamnese
-          </Button>
+          {!isReadOnly && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClear}
+              className="flex-1 sm:flex-none text-slate-600"
+            >
+              <Eraser className="mr-2 h-4 w-4" /> Limpar
+            </Button>
+          )}
+          {isReadOnly ? (
+            <Button
+              type="button"
+              onClick={() => setIsReadOnly(false)}
+              className="flex-1 sm:flex-none bg-brand hover:bg-brand/90 text-white shadow-md"
+            >
+              <Edit3 className="mr-2 h-4 w-4" /> Editar Este Registro
+            </Button>
+          ) : (
+            <Button
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isLoading}
+              className="flex-1 sm:flex-none bg-brand hover:bg-brand/90 text-white shadow-md"
+            >
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              {selectedHistoryId === 'new' ? 'Salvar Nova Anamnese' : 'Atualizar Anamnese'}
+            </Button>
+          )}
         </div>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="bg-slate-50/50 p-4 rounded-xl border border-brand/10">
+          <div className="bg-slate-50/50 p-4 rounded-xl border border-brand/10 flex flex-col md:flex-row gap-4 items-end">
             <FormField
               control={form.control}
               name="paciente_id"
               render={({ field }) => (
-                <FormItem className="max-w-md">
+                <FormItem className="flex-1 min-w-[250px]">
                   <FormLabel className="text-brand font-semibold">Paciente Selecionado *</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
@@ -253,59 +368,90 @@ export default function ProfAnamnesePage() {
                 </FormItem>
               )}
             />
+
+            {history.length > 0 && (
+              <div className="flex-1 min-w-[250px] space-y-2">
+                <FormLabel className="text-brand font-semibold flex items-center gap-2">
+                  <History className="h-4 w-4" /> Histórico de Consultas
+                </FormLabel>
+                <Select value={selectedHistoryId} onValueChange={setSelectedHistoryId}>
+                  <SelectTrigger className="bg-white shadow-sm border-blue-200">
+                    <SelectValue placeholder="Selecione um registro anterior" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new" className="font-semibold text-brand">
+                      <div className="flex items-center">
+                        <Plus className="mr-2 h-4 w-4" /> Iniciar Nova Anamnese
+                      </div>
+                    </SelectItem>
+                    {history.map((h) => (
+                      <SelectItem key={h.id} value={h.id}>
+                        {new Date(h.created_at).toLocaleDateString('pt-BR')} às{' '}
+                        {new Date(h.created_at).toLocaleTimeString('pt-BR', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto gap-2 bg-transparent">
-              <TabsTrigger
-                value="pessoal"
-                className="data-[state=active]:bg-brand data-[state=active]:text-white border shadow-sm py-2"
-              >
-                I & II. Pessoal & Queixas
-              </TabsTrigger>
-              <TabsTrigger
-                value="historico"
-                className="data-[state=active]:bg-brand data-[state=active]:text-white border shadow-sm py-2"
-              >
-                III. Histórico de Saúde
-              </TabsTrigger>
-              <TabsTrigger
-                value="sistemas"
-                className="data-[state=active]:bg-brand data-[state=active]:text-white border shadow-sm py-2"
-              >
-                IV. Avaliação Sistêmica
-              </TabsTrigger>
-              <TabsTrigger
-                value="habitos"
-                className="data-[state=active]:bg-brand data-[state=active]:text-white border shadow-sm py-2"
-              >
-                V. Hábitos & Estilo
-              </TabsTrigger>
-              <TabsTrigger
-                value="estetica"
-                className="data-[state=active]:bg-brand data-[state=active]:text-white border shadow-sm py-2"
-              >
-                VI & VII. Estética & Obs.
-              </TabsTrigger>
-            </TabsList>
-            <div className="mt-6">
-              <TabsContent value="pessoal" className="m-0 focus-visible:outline-none">
-                <PersonalTab />
-              </TabsContent>
-              <TabsContent value="historico" className="m-0 focus-visible:outline-none">
-                <HealthTab />
-              </TabsContent>
-              <TabsContent value="sistemas" className="m-0 focus-visible:outline-none">
-                <SystemsTab />
-              </TabsContent>
-              <TabsContent value="habitos" className="m-0 focus-visible:outline-none">
-                <LifestyleTab />
-              </TabsContent>
-              <TabsContent value="estetica" className="m-0 focus-visible:outline-none">
-                <AestheticsTab />
-              </TabsContent>
-            </div>
-          </Tabs>
+          <fieldset disabled={isReadOnly} className={isReadOnly ? 'opacity-90' : ''}>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto gap-2 bg-transparent">
+                <TabsTrigger
+                  value="pessoal"
+                  className="data-[state=active]:bg-brand data-[state=active]:text-white border shadow-sm py-2"
+                >
+                  I & II. Pessoal & Queixas
+                </TabsTrigger>
+                <TabsTrigger
+                  value="historico"
+                  className="data-[state=active]:bg-brand data-[state=active]:text-white border shadow-sm py-2"
+                >
+                  III. Histórico de Saúde
+                </TabsTrigger>
+                <TabsTrigger
+                  value="sistemas"
+                  className="data-[state=active]:bg-brand data-[state=active]:text-white border shadow-sm py-2"
+                >
+                  IV. Avaliação Sistêmica
+                </TabsTrigger>
+                <TabsTrigger
+                  value="habitos"
+                  className="data-[state=active]:bg-brand data-[state=active]:text-white border shadow-sm py-2"
+                >
+                  V. Hábitos & Estilo
+                </TabsTrigger>
+                <TabsTrigger
+                  value="estetica"
+                  className="data-[state=active]:bg-brand data-[state=active]:text-white border shadow-sm py-2"
+                >
+                  VI & VII. Estética & Obs.
+                </TabsTrigger>
+              </TabsList>
+              <div className="mt-6">
+                <TabsContent value="pessoal" className="m-0 focus-visible:outline-none">
+                  <PersonalTab />
+                </TabsContent>
+                <TabsContent value="historico" className="m-0 focus-visible:outline-none">
+                  <HealthTab />
+                </TabsContent>
+                <TabsContent value="sistemas" className="m-0 focus-visible:outline-none">
+                  <SystemsTab />
+                </TabsContent>
+                <TabsContent value="habitos" className="m-0 focus-visible:outline-none">
+                  <LifestyleTab />
+                </TabsContent>
+                <TabsContent value="estetica" className="m-0 focus-visible:outline-none">
+                  <AestheticsTab />
+                </TabsContent>
+              </div>
+            </Tabs>
+          </fieldset>
         </form>
       </Form>
     </div>

@@ -14,6 +14,10 @@ import ProfPatients from '@/pages/professional/ProfPatients'
 import ProfPatientForm from '@/pages/professional/ProfPatientForm'
 import ProfAgenda from '@/pages/professional/ProfAgenda'
 import ProfAnamnesePage from '@/pages/professional/anamnese/ProfAnamnesePage'
+import ProfExamesPage from '@/pages/professional/ProfExamesPage'
+import ProfPrescricoesPage from '@/pages/professional/ProfPrescricoesPage'
+import ProfFinanceiroPage from '@/pages/professional/ProfFinanceiroPage'
+import ProfConfiguracoesPage from '@/pages/professional/ProfConfiguracoesPage'
 import PatientDashboard from '@/pages/patient/PatientDashboard'
 import NotFound from '@/pages/NotFound'
 
@@ -37,6 +41,10 @@ const App = () => (
               <Route path="/prof/agenda" element={<ProfAgenda />} />
               <Route path="/prof/anamnese" element={<ProfAnamnesePage />} />
               <Route path="/prof/anamnese/:pacienteId" element={<ProfAnamnesePage />} />
+              <Route path="/prof/exames" element={<ProfExamesPage />} />
+              <Route path="/prof/prescricoes" element={<ProfPrescricoesPage />} />
+              <Route path="/prof/financeiro" element={<ProfFinanceiroPage />} />
+              <Route path="/prof/configuracoes" element={<ProfConfiguracoesPage />} />
               <Route path="/paciente/dashboard" element={<PatientDashboard />} />
             </Route>
             <Route path="*" element={<NotFound />} />

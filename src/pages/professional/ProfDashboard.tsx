@@ -126,35 +126,35 @@ export default function ProfDashboard() {
         <Button
           onClick={handleAnamnese}
           variant="secondary"
-          className="flex items-center gap-2 hover-lift"
+          className="flex items-center gap-2 hover-lift border border-brand/10"
         >
           <FileText className="h-4 w-4 text-brand" /> Anamnese
         </Button>
         <Button
           onClick={handleExames}
           variant="secondary"
-          className="flex items-center gap-2 hover-lift"
+          className="flex items-center gap-2 hover-lift border border-brand/10"
         >
           <TestTube className="h-4 w-4 text-brand" /> Exames
         </Button>
         <Button
           onClick={handlePrescricoes}
           variant="secondary"
-          className="flex items-center gap-2 hover-lift"
+          className="flex items-center gap-2 hover-lift border border-brand/10"
         >
           <Pill className="h-4 w-4 text-brand" /> Prescrições
         </Button>
         <Button
           onClick={handleFinanceiro}
           variant="secondary"
-          className="flex items-center gap-2 hover-lift"
+          className="flex items-center gap-2 hover-lift border border-brand/10"
         >
           <DollarSign className="h-4 w-4 text-brand" /> Financeiro
         </Button>
         <Button
           onClick={handleConfiguracoes}
           variant="secondary"
-          className="flex items-center gap-2 hover-lift"
+          className="flex items-center gap-2 hover-lift border border-brand/10"
         >
           <Settings className="h-4 w-4 text-brand" /> Configurações
         </Button>
