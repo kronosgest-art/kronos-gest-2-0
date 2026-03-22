@@ -13,30 +13,66 @@ import {
   Crown,
   CheckCircle2,
   XCircle,
+  TrendingUp,
+  UserPlus,
 } from 'lucide-react'
+import { startOfMonth } from 'date-fns'
+import { Link } from 'react-router-dom'
 
 export default function ProfDashboard() {
   const { appointments, updateAppointmentStatus } = useApp()
   const { profile } = useAuth()
   const [orgName, setOrgName] = useState<string>('')
 
+  const [metrics, setMetrics] = useState({
+    totalPatients: 0,
+    newPatientsThisMonth: 0,
+    recentPatients: [] as any[],
+  })
+
   const todayAppointments = appointments.filter((a) => a.date === 'Hoje')
 
   useEffect(() => {
-    async function fetchOrg() {
-      if (profile?.organization_id) {
-        const { data, error } = await supabase
-          .from('organizations')
-          .select('nome_clinica')
-          .eq('id', profile.organization_id)
-          .single()
+    async function fetchDashboardData() {
+      if (!profile?.organization_id) return
 
-        if (data && !error) {
-          setOrgName(data.nome_clinica)
-        }
-      }
+      // Fetch org name
+      const { data: orgData } = await supabase
+        .from('organizations')
+        .select('nome_clinica')
+        .eq('id', profile.organization_id)
+        .single()
+
+      if (orgData) setOrgName(orgData.nome_clinica)
+
+      // Fetch Metrics
+      const startOfCurrentMonth = startOfMonth(new Date()).toISOString()
+
+      const [totalRes, newMonthRes, recentRes] = await Promise.all([
+        supabase
+          .from('pacientes')
+          .select('*', { count: 'exact', head: true })
+          .eq('organization_id', profile.organization_id),
+        supabase
+          .from('pacientes')
+          .select('*', { count: 'exact', head: true })
+          .eq('organization_id', profile.organization_id)
+          .gte('created_at', startOfCurrentMonth),
+        supabase
+          .from('pacientes')
+          .select('id, nome, email, created_at')
+          .eq('organization_id', profile.organization_id)
+          .order('created_at', { ascending: false })
+          .limit(5),
+      ])
+
+      setMetrics({
+        totalPatients: totalRes.count || 0,
+        newPatientsThisMonth: newMonthRes.count || 0,
+        recentPatients: recentRes.data || [],
+      })
     }
-    fetchOrg()
+    fetchDashboardData()
   }, [profile?.organization_id])
 
   return (
@@ -44,7 +80,7 @@ export default function ProfDashboard() {
       {/* Header de Boas-vindas */}
       <div className="flex flex-col gap-1 mb-6 animate-slide-up">
         <h1 className="text-3xl font-bold tracking-tight text-brand">
-          Bem-vinda, {profile?.nome?.split(' ')[0] || 'Morgana'}!
+          Bem-vinda, {profile?.nome?.split(' ')[0] || 'Profissional'}!
         </h1>
         {orgName && (
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -63,10 +99,28 @@ export default function ProfDashboard() {
             <div className="flex justify-between items-start">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-muted-foreground">Total Pacientes</p>
-                <p className="text-3xl font-bold text-brand">342</p>
+                <p className="text-3xl font-bold text-brand">{metrics.totalPatients}</p>
               </div>
               <div className="p-2 bg-blue-50 rounded-lg">
                 <Users className="h-5 w-5 text-brand" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover-lift border-t-4 border-t-emerald-500">
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-start">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Novos (Este Mês)</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-3xl font-bold text-emerald-600">
+                    +{metrics.newPatientsThisMonth}
+                  </p>
+                </div>
+              </div>
+              <div className="p-2 bg-emerald-50 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-emerald-600" />
               </div>
             </div>
           </CardContent>
@@ -81,20 +135,6 @@ export default function ProfDashboard() {
               </div>
               <div className="p-2 bg-yellow-50 rounded-lg">
                 <CalendarIcon className="h-5 w-5 text-gold" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover-lift border-t-4 border-t-emerald-500">
-          <CardContent className="pt-6">
-            <div className="flex justify-between items-start">
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Créditos IA Restantes</p>
-                <p className="text-3xl font-bold text-brand">1,204</p>
-              </div>
-              <div className="p-2 bg-emerald-50 rounded-lg">
-                <Zap className="h-5 w-5 text-emerald-600" />
               </div>
             </div>
           </CardContent>
@@ -191,35 +231,62 @@ export default function ProfDashboard() {
                   </div>
                 </div>
               ))}
+              {todayAppointments.length === 0 && (
+                <div className="p-8 text-center text-muted-foreground">
+                  Nenhum agendamento para hoje.
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-brand text-white shadow-lg overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-8 opacity-10">
-            <Zap className="h-32 w-32" />
-          </div>
-          <CardHeader>
-            <CardTitle className="text-lg text-blue-50">Resumo de Performance</CardTitle>
+        <Card className="shadow-sm border-slate-200 flex flex-col">
+          <CardHeader className="border-b bg-slate-50/50 pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg text-brand flex items-center gap-2">
+                <UserPlus className="h-5 w-5" />
+                Últimos Pacientes
+              </CardTitle>
+              <Button variant="ghost" size="sm" className="text-brand" asChild>
+                <Link to="/prof/pacientes">Ver Todos</Link>
+              </Button>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-6 relative z-10">
-            <div>
-              <p className="text-blue-200 text-sm mb-1">Taxa de Comparecimento</p>
-              <div className="flex items-end gap-2">
-                <span className="text-4xl font-bold">92%</span>
-                <span className="text-emerald-400 text-sm mb-1">+2%</span>
-              </div>
+          <CardContent className="p-0 flex-1 flex flex-col">
+            <div className="divide-y flex-1">
+              {metrics.recentPatients.length > 0 ? (
+                metrics.recentPatients.map((patient) => (
+                  <div
+                    key={patient.id}
+                    className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-1"
+                  >
+                    <div className="flex justify-between items-start">
+                      <p
+                        className="font-semibold text-brand truncate max-w-[200px]"
+                        title={patient.nome}
+                      >
+                        {patient.nome}
+                      </p>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {new Date(patient.created_at).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                    {patient.email && (
+                      <p className="text-xs text-muted-foreground truncate">{patient.email}</p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="p-8 text-center text-muted-foreground">
+                  Nenhum paciente cadastrado ainda.
+                </div>
+              )}
             </div>
-            <div>
-              <p className="text-blue-200 text-sm mb-1">Satisfação (NPS)</p>
-              <div className="flex items-end gap-2">
-                <span className="text-4xl font-bold">4.9</span>
-                <span className="text-blue-200 text-sm mb-1">/ 5.0</span>
-              </div>
+            <div className="p-4 border-t mt-auto">
+              <Button className="w-full bg-brand hover:bg-brand/90" asChild>
+                <Link to="/prof/pacientes/novo">Cadastrar Novo Paciente</Link>
+              </Button>
             </div>
-            <Button variant="secondary" className="w-full bg-white text-brand hover:bg-blue-50">
-              Ver Relatório Detalhado
-            </Button>
           </CardContent>
         </Card>
       </div>
