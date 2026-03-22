@@ -13,6 +13,7 @@ import ProfDashboard from '@/pages/professional/ProfDashboard'
 import ProfPatients from '@/pages/professional/ProfPatients'
 import ProfPatientForm from '@/pages/professional/ProfPatientForm'
 import ProfAgenda from '@/pages/professional/ProfAgenda'
+import ProfAnamnesePage from '@/pages/professional/anamnese/ProfAnamnesePage'
 import PatientDashboard from '@/pages/patient/PatientDashboard'
 import NotFound from '@/pages/NotFound'
 
@@ -34,6 +35,8 @@ const App = () => (
               <Route path="/prof/pacientes/novo" element={<ProfPatientForm />} />
               <Route path="/prof/pacientes/:id" element={<ProfPatientForm />} />
               <Route path="/prof/agenda" element={<ProfAgenda />} />
+              <Route path="/prof/anamnese" element={<ProfAnamnesePage />} />
+              <Route path="/prof/anamnese/:pacienteId" element={<ProfAnamnesePage />} />
               <Route path="/paciente/dashboard" element={<PatientDashboard />} />
             </Route>
             <Route path="*" element={<NotFound />} />

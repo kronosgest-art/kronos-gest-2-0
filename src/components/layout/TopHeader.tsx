@@ -1,52 +1,113 @@
+import { Link, useNavigate } from 'react-router-dom'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Bell, LogOut, User, Settings, Shield } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
-import { LogOut, Bell, User } from 'lucide-react'
 
 export function TopHeader() {
-  const { profile, signOut } = useAuth()
+  const { signOut, profile, user } = useAuth()
+  const navigate = useNavigate()
 
   const handleSignOut = async () => {
     await signOut()
+    navigate('/')
   }
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2)
+  }
+
+  const userInitials = profile?.nome ? getInitials(profile.nome) : 'U'
+  const roleDisplay =
+    profile?.role === 'admin'
+      ? 'Administrador'
+      : profile?.role === 'profissional'
+        ? 'Profissional'
+        : 'Paciente'
+
   return (
-    <header className="h-16 border-b border-slate-100 bg-white flex items-center justify-between px-6 shadow-sm z-10 shrink-0">
-      <div className="flex items-center">
-        <h2 className="text-xl font-semibold text-brand hidden md:block">
-          Bem-vindo(a) ao seu espaço
-        </h2>
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-white px-4 shadow-sm md:px-6">
+      <div className="flex items-center gap-4">
+        <SidebarTrigger className="text-slate-500 hover:text-brand" />
+        <div className="hidden md:block">
+          <p className="text-sm font-medium text-slate-500">Gestão Inteligente</p>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="text-slate-400 hover:text-brand relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative text-slate-500 hover:text-brand rounded-full"
+        >
           <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border border-white"></span>
+          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 border-2 border-white"></span>
         </Button>
 
-        <div className="h-8 w-px bg-slate-200 mx-2"></div>
-
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex flex-col items-end">
-            <span className="text-sm font-medium text-slate-700">{profile?.nome || 'Usuário'}</span>
-            {profile?.role && (
-              <span className="text-[10px] uppercase font-bold text-gold tracking-wider">
-                {profile.role}
-              </span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar className="h-10 w-10 border-2 border-brand/10">
+                <AvatarImage
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${userInitials}`}
+                  alt={profile?.nome || 'User'}
+                />
+                <AvatarFallback className="bg-brand/5 text-brand">{userInitials}</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none text-brand">
+                  {profile?.nome || user?.email}
+                </p>
+                <p className="text-xs leading-none text-muted-foreground">{roleDisplay}</p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link to="/perfil" className="flex items-center">
+                <User className="mr-2 h-4 w-4" />
+                <span>Meu Perfil</span>
+              </Link>
+            </DropdownMenuItem>
+            {profile?.role === 'admin' && (
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link to="/admin/settings" className="flex items-center">
+                  <Shield className="mr-2 h-4 w-4" />
+                  <span>Painel Admin</span>
+                </Link>
+              </DropdownMenuItem>
             )}
-          </div>
-          <div className="h-9 w-9 rounded-full bg-brand/10 flex items-center justify-center text-brand">
-            <User className="h-5 w-5" />
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-slate-500 hover:text-red-600 hover:bg-red-50 ml-1"
-            onClick={handleSignOut}
-            title="Sair do sistema"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
-        </div>
+            <DropdownMenuItem className="cursor-pointer">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Configurações</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="text-red-600 cursor-pointer focus:text-red-600"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sair</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )

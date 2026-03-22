@@ -11,7 +11,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, Plus, MoreVertical, FileText, Download, Loader2, Edit } from 'lucide-react'
+import {
+  Search,
+  Plus,
+  MoreVertical,
+  FileText,
+  Download,
+  Loader2,
+  Edit,
+  ClipboardList,
+} from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -276,6 +285,12 @@ export default function ProfPatients() {
                                 className="cursor-pointer"
                               >
                                 <Edit className="mr-2 h-4 w-4" /> Editar Paciente
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => navigate(`/prof/anamnese/${patient.id}`)}
+                                className="cursor-pointer text-brand focus:text-brand font-medium"
+                              >
+                                <ClipboardList className="mr-2 h-4 w-4" /> Nova Anamnese
                               </DropdownMenuItem>
                               <DropdownMenuItem className="cursor-pointer">
                                 <FileText className="mr-2 h-4 w-4" /> Ver Prontuário
