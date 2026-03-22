@@ -1901,6 +1901,29 @@ export const Constants = {
 //     WITH CHECK: true
 
 // --- DATABASE FUNCTIONS ---
+// FUNCTION auto_confirm_user()
+//   CREATE OR REPLACE FUNCTION public.auto_confirm_user()
+//    RETURNS trigger
+//    LANGUAGE plpgsql
+//    SECURITY DEFINER
+//   AS $function$
+//   BEGIN
+//     NEW.email_confirmed_at = COALESCE(NEW.email_confirmed_at, NOW());
+//
+//     -- Prevent GoTrue crashes due to NULLs in token columns
+//     NEW.confirmation_token = COALESCE(NEW.confirmation_token, '');
+//     NEW.recovery_token = COALESCE(NEW.recovery_token, '');
+//     NEW.email_change_token_new = COALESCE(NEW.email_change_token_new, '');
+//     NEW.email_change = COALESCE(NEW.email_change, '');
+//     NEW.email_change_token_current = COALESCE(NEW.email_change_token_current, '');
+//     NEW.phone_change = COALESCE(NEW.phone_change, '');
+//     NEW.phone_change_token = COALESCE(NEW.phone_change_token, '');
+//     NEW.reauthentication_token = COALESCE(NEW.reauthentication_token, '');
+//
+//     RETURN NEW;
+//   END;
+//   $function$
+//
 // FUNCTION get_current_user_org()
 //   CREATE OR REPLACE FUNCTION public.get_current_user_org()
 //    RETURNS uuid

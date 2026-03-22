@@ -11,14 +11,35 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { Users, DollarSign, Activity, Building2 } from 'lucide-react'
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Area, AreaChart, Tooltip, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
 import { clinicsData, chartData } from '@/lib/mockData'
+import { SystemStatusCard } from '@/components/SystemStatusCard'
 
 export default function AdminDashboard() {
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-brand">Painel Administrativo</h2>
+          <p className="text-muted-foreground">Visão geral do sistema e organizações</p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <SystemStatusCard />
+
+        <Card className="hover-lift">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Clínicas Ativas</CardTitle>
+            <Building2 className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-brand">342</div>
+            <p className="text-xs text-muted-foreground mt-1">12 em período de trial</p>
+          </CardContent>
+        </Card>
+
         <Card className="hover-lift">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Assinantes</CardTitle>
@@ -56,17 +77,6 @@ export default function AdminDashboard() {
             <p className="text-xs text-muted-foreground mt-2">12M / 15M capacidade global</p>
           </CardContent>
         </Card>
-
-        <Card className="hover-lift">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clínicas Ativas</CardTitle>
-            <Building2 className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand">342</div>
-            <p className="text-xs text-muted-foreground mt-1">12 em período de trial</p>
-          </CardContent>
-        </Card>
       </div>
 
       <div className="grid gap-4 md:grid-cols-7">
@@ -76,7 +86,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent className="pl-0">
             <ChartContainer
-              config={{ creditos: { label: 'Créditos', color: 'hsl(var(--chart-1))' } }}
+              config={{ creditos: { label: 'Créditos', color: 'hsl(var(--primary))' } }}
               className="h-[300px] w-full"
             >
               <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
