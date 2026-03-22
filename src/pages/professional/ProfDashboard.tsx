@@ -14,13 +14,19 @@ import {
   XCircle,
   TrendingUp,
   UserPlus,
+  FileText,
+  TestTube,
+  Pill,
+  DollarSign,
+  Settings,
 } from 'lucide-react'
 import { startOfMonth } from 'date-fns'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function ProfDashboard() {
   const { appointments, updateAppointmentStatus } = useApp()
   const { profile } = useAuth()
+  const navigate = useNavigate()
   const [orgName, setOrgName] = useState<string>('')
 
   const [metrics, setMetrics] = useState({
@@ -30,6 +36,26 @@ export default function ProfDashboard() {
   })
 
   const todayAppointments = appointments.filter((a) => a.date === 'Hoje')
+
+  const handleAnamnese = () => {
+    navigate('/prof/anamnese')
+  }
+
+  const handleExames = () => {
+    navigate('/prof/exames')
+  }
+
+  const handlePrescricoes = () => {
+    navigate('/prof/prescricoes')
+  }
+
+  const handleFinanceiro = () => {
+    navigate('/prof/financeiro')
+  }
+
+  const handleConfiguracoes = () => {
+    navigate('/prof/configuracoes')
+  }
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -93,6 +119,45 @@ export default function ProfDashboard() {
             <span className="text-lg font-medium">{orgName}</span>
           </div>
         )}
+      </div>
+
+      {/* Ações Rápidas */}
+      <div className="flex flex-wrap gap-3 animate-slide-up" style={{ animationDelay: '50ms' }}>
+        <Button
+          onClick={handleAnamnese}
+          variant="secondary"
+          className="flex items-center gap-2 hover-lift"
+        >
+          <FileText className="h-4 w-4 text-brand" /> Anamnese
+        </Button>
+        <Button
+          onClick={handleExames}
+          variant="secondary"
+          className="flex items-center gap-2 hover-lift"
+        >
+          <TestTube className="h-4 w-4 text-brand" /> Exames
+        </Button>
+        <Button
+          onClick={handlePrescricoes}
+          variant="secondary"
+          className="flex items-center gap-2 hover-lift"
+        >
+          <Pill className="h-4 w-4 text-brand" /> Prescrições
+        </Button>
+        <Button
+          onClick={handleFinanceiro}
+          variant="secondary"
+          className="flex items-center gap-2 hover-lift"
+        >
+          <DollarSign className="h-4 w-4 text-brand" /> Financeiro
+        </Button>
+        <Button
+          onClick={handleConfiguracoes}
+          variant="secondary"
+          className="flex items-center gap-2 hover-lift"
+        >
+          <Settings className="h-4 w-4 text-brand" /> Configurações
+        </Button>
       </div>
 
       <div
