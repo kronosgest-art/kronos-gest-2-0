@@ -1,10 +1,9 @@
 {
   "_versions": {
-    "interpret-bioresonance": 3,
-    "generate-prescription-suggestion": 7,
-    "generate-cleansing-protocol": 4,
-    "stripe-webhook": 6,
-    "create-checkout-session": 3,
-    "functions": 3
+    "interpret-bioresonance": 1,
+    "generate-prescription-suggestion": 5,
+    "generate-cleansing-protocol": 2,
+    "stripe-webhook": 2,
+    "create-checkout-session": 1
   }
 }

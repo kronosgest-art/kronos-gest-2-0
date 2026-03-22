@@ -9,7 +9,6 @@ import {
   Building2,
   Users,
   Calendar as CalendarIcon,
-  Zap,
   Crown,
   CheckCircle2,
   XCircle,
@@ -36,41 +35,47 @@ export default function ProfDashboard() {
     async function fetchDashboardData() {
       if (!profile?.organization_id) return
 
-      // Fetch org name
-      const { data: orgData } = await supabase
-        .from('organizations')
-        .select('nome_clinica')
-        .eq('id', profile.organization_id)
-        .single()
+      try {
+        // Fetch org name
+        const { data: orgData } = await supabase
+          .from('organizations')
+          .select('nome_clinica')
+          .eq('id', profile.organization_id)
+          .single()
 
-      if (orgData) setOrgName(orgData.nome_clinica)
+        if (orgData) setOrgName(orgData.nome_clinica)
 
-      // Fetch Metrics
-      const startOfCurrentMonth = startOfMonth(new Date()).toISOString()
+        // Fetch Metrics - using select id with limit 1 and count exact to avoid HEAD requests
+        const startOfCurrentMonth = startOfMonth(new Date()).toISOString()
 
-      const [totalRes, newMonthRes, recentRes] = await Promise.all([
-        supabase
-          .from('pacientes')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', profile.organization_id),
-        supabase
-          .from('pacientes')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', profile.organization_id)
-          .gte('created_at', startOfCurrentMonth),
-        supabase
-          .from('pacientes')
-          .select('id, nome, email, created_at')
-          .eq('organization_id', profile.organization_id)
-          .order('created_at', { ascending: false })
-          .limit(5),
-      ])
+        const [totalRes, newMonthRes, recentRes] = await Promise.all([
+          supabase
+            .from('pacientes')
+            .select('id', { count: 'exact' })
+            .eq('organization_id', profile.organization_id)
+            .limit(1),
+          supabase
+            .from('pacientes')
+            .select('id', { count: 'exact' })
+            .eq('organization_id', profile.organization_id)
+            .gte('created_at', startOfCurrentMonth)
+            .limit(1),
+          supabase
+            .from('pacientes')
+            .select('id, nome, email, created_at')
+            .eq('organization_id', profile.organization_id)
+            .order('created_at', { ascending: false })
+            .limit(5),
+        ])
 
-      setMetrics({
-        totalPatients: totalRes.count || 0,
-        newPatientsThisMonth: newMonthRes.count || 0,
-        recentPatients: recentRes.data || [],
-      })
+        setMetrics({
+          totalPatients: totalRes.count || 0,
+          newPatientsThisMonth: newMonthRes.count || 0,
+          recentPatients: recentRes.data || [],
+        })
+      } catch (error) {
+        console.error('Erro ao buscar dados do dashboard:', error)
+      }
     }
     fetchDashboardData()
   }, [profile?.organization_id])

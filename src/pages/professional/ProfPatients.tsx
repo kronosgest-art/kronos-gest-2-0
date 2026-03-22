@@ -65,6 +65,8 @@ export default function ProfPatients() {
     setIsLoading(true)
 
     try {
+      // Utilizamos select com count 'exact' e sem flag 'head' para que a requisição
+      // seja feita via método GET garantindo dados e contagem sem erros de parse de JSON
       let query = supabase
         .from('pacientes')
         .select('*', { count: 'exact' })
@@ -97,6 +99,8 @@ export default function ProfPatients() {
         title: 'Erro ao buscar pacientes',
         description: error.message,
       })
+      setPatients([])
+      setTotalPages(1)
     } finally {
       setIsLoading(false)
     }
