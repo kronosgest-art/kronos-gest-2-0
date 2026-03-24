@@ -1,25 +1,26 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { AppProvider } from '@/context/AppContext'
 import { AuthProvider } from '@/hooks/use-auth'
 import Layout from '@/components/Layout'
-import Index from '@/pages/Index'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+
+import Login from '@/pages/Login'
 import Signup from '@/pages/Signup'
-import ForgotPassword from '@/pages/ForgotPassword'
-import AdminDashboard from '@/pages/admin/AdminDashboard'
-import ProfDashboard from '@/pages/professional/ProfDashboard'
-import ProfPatients from '@/pages/professional/ProfPatients'
-import ProfPatientForm from '@/pages/professional/ProfPatientForm'
-import ProfAgenda from '@/pages/professional/ProfAgenda'
-import ProfAnamnesePage from '@/pages/professional/anamnese/ProfAnamnesePage'
-import ProfExamesPage from '@/pages/professional/ProfExamesPage'
-import ProfPrescricoesPage from '@/pages/professional/ProfPrescricoesPage'
-import ProfFinanceiroPage from '@/pages/professional/ProfFinanceiroPage'
-import ProfConfiguracoesPage from '@/pages/professional/ProfConfiguracoesPage'
-import PatientDashboard from '@/pages/patient/PatientDashboard'
-import NotFound from '@/pages/NotFound'
+
+import AdminDashboard from '@/pages/admin/Dashboard'
+import ProfDashboard from '@/pages/professional/Dashboard'
+import Patients from '@/pages/professional/Patients'
+import PatientDetail from '@/pages/professional/PatientDetail'
+import Anamesis from '@/pages/professional/Anamesis'
+import Exams from '@/pages/professional/Exams'
+import Prescriptions from '@/pages/professional/Prescriptions'
+import Appointments from '@/pages/professional/Appointments'
+import Financial from '@/pages/professional/Financial'
+import Settings from '@/pages/professional/Settings'
+import PatientDashboard from '@/pages/patient/Dashboard'
 
 const App = () => (
   <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
@@ -29,25 +30,34 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
+
             <Route element={<Layout />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/prof/dashboard" element={<ProfDashboard />} />
-              <Route path="/prof/pacientes" element={<ProfPatients />} />
-              <Route path="/prof/pacientes/novo" element={<ProfPatientForm />} />
-              <Route path="/prof/pacientes/:id" element={<ProfPatientForm />} />
-              <Route path="/prof/agenda" element={<ProfAgenda />} />
-              <Route path="/prof/anamnese" element={<ProfAnamnesePage />} />
-              <Route path="/prof/anamnese/:pacienteId" element={<ProfAnamnesePage />} />
-              <Route path="/prof/exames" element={<ProfExamesPage />} />
-              <Route path="/prof/prescricoes" element={<ProfPrescricoesPage />} />
-              <Route path="/prof/financeiro" element={<ProfFinanceiroPage />} />
-              <Route path="/prof/configuracoes" element={<ProfConfiguracoesPage />} />
-              <Route path="/paciente/dashboard" element={<PatientDashboard />} />
+              <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              </Route>
+
+              <Route element={<ProtectedRoute allowedRoles={['profissional']} />}>
+                <Route path="/professional/dashboard" element={<ProfDashboard />} />
+                <Route path="/professional/patients" element={<Patients />} />
+                <Route path="/professional/patients/:id" element={<PatientDetail />} />
+                <Route path="/professional/patients/:pacienteId/anamesis" element={<Anamesis />} />
+                <Route path="/professional/patients/:pacienteId/exams" element={<Exams />} />
+                <Route
+                  path="/professional/patients/:pacienteId/prescriptions"
+                  element={<Prescriptions />}
+                />
+                <Route path="/professional/appointments" element={<Appointments />} />
+                <Route path="/professional/financial" element={<Financial />} />
+                <Route path="/professional/settings" element={<Settings />} />
+              </Route>
+
+              <Route element={<ProtectedRoute allowedRoles={['paciente']} />}>
+                <Route path="/patient/dashboard" element={<PatientDashboard />} />
+              </Route>
             </Route>
-            <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
       </AppProvider>

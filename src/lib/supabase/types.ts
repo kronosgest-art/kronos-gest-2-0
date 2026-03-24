@@ -76,6 +76,88 @@ export type Database = {
           },
         ]
       }
+      anamesis: {
+        Row: {
+          assessment: string | null
+          chief_complaint: string | null
+          created_at: string | null
+          custom_fields: Json | null
+          family_history: string | null
+          history_of_present_illness: string | null
+          id: string
+          organization_id: string
+          past_medical_history: string | null
+          patient_id: string
+          physical_examination: string | null
+          plan: string | null
+          professional_id: string
+          review_of_systems: string | null
+          social_history: string | null
+          updated_at: string | null
+          version: number | null
+        }
+        Insert: {
+          assessment?: string | null
+          chief_complaint?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          family_history?: string | null
+          history_of_present_illness?: string | null
+          id?: string
+          organization_id: string
+          past_medical_history?: string | null
+          patient_id: string
+          physical_examination?: string | null
+          plan?: string | null
+          professional_id: string
+          review_of_systems?: string | null
+          social_history?: string | null
+          updated_at?: string | null
+          version?: number | null
+        }
+        Update: {
+          assessment?: string | null
+          chief_complaint?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          family_history?: string | null
+          history_of_present_illness?: string | null
+          id?: string
+          organization_id?: string
+          past_medical_history?: string | null
+          patient_id?: string
+          physical_examination?: string | null
+          plan?: string | null
+          professional_id?: string
+          review_of_systems?: string | null
+          social_history?: string | null
+          updated_at?: string | null
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'anamesis_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'anamesis_patient_id_fkey'
+            columns: ['patient_id']
+            isOneToOne: false
+            referencedRelation: 'patients'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'anamesis_professional_id_fkey'
+            columns: ['professional_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       anamnese: {
         Row: {
           alergias_sensibilidades: Json | null
@@ -358,6 +440,67 @@ export type Database = {
           },
         ]
       }
+      appointments: {
+        Row: {
+          appointment_date: string
+          created_at: string | null
+          duration_minutes: number | null
+          id: string
+          notes: string | null
+          organization_id: string
+          patient_id: string
+          professional_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          appointment_date: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          organization_id: string
+          patient_id: string
+          professional_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          appointment_date?: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          patient_id?: string
+          professional_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'appointments_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'appointments_patient_id_fkey'
+            columns: ['patient_id']
+            isOneToOne: false
+            referencedRelation: 'patients'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'appointments_professional_id_fkey'
+            columns: ['professional_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       clientes: {
         Row: {
           altura: number | null
@@ -458,6 +601,51 @@ export type Database = {
             columns: ['organization_id']
             isOneToOne: false
             referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      credits_spent: {
+        Row: {
+          created_at: string | null
+          credits_used: number
+          description: string | null
+          feature: string
+          id: string
+          organization_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          credits_used: number
+          description?: string | null
+          feature: string
+          id?: string
+          organization_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          credits_used?: number
+          description?: string | null
+          feature?: string
+          id?: string
+          organization_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'credits_spent_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'credits_spent_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
             referencedColumns: ['id']
           },
         ]
@@ -629,6 +817,79 @@ export type Database = {
           },
         ]
       }
+      exams: {
+        Row: {
+          created_at: string | null
+          exam_date: string | null
+          exam_name: string
+          exam_type: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          notes: string | null
+          organization_id: string
+          patient_id: string
+          professional_id: string
+          results: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          exam_date?: string | null
+          exam_name: string
+          exam_type: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          organization_id: string
+          patient_id: string
+          professional_id: string
+          results?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          exam_date?: string | null
+          exam_name?: string
+          exam_type?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          patient_id?: string
+          professional_id?: string
+          results?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'exams_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'exams_patient_id_fkey'
+            columns: ['patient_id']
+            isOneToOne: false
+            referencedRelation: 'patients'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'exams_professional_id_fkey'
+            columns: ['professional_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       financeiro: {
         Row: {
           agendamento_id: string | null
@@ -695,6 +956,76 @@ export type Database = {
             columns: ['paciente_id']
             isOneToOne: false
             referencedRelation: 'clientes'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      financial: {
+        Row: {
+          amount: number
+          appointment_id: string | null
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          organization_id: string
+          paid_date: string | null
+          patient_id: string | null
+          payment_method: string | null
+          status: string | null
+          transaction_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          appointment_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          organization_id: string
+          paid_date?: string | null
+          patient_id?: string | null
+          payment_method?: string | null
+          status?: string | null
+          transaction_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          organization_id?: string
+          paid_date?: string | null
+          patient_id?: string | null
+          payment_method?: string | null
+          status?: string | null
+          transaction_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'financial_appointment_id_fkey'
+            columns: ['appointment_id']
+            isOneToOne: false
+            referencedRelation: 'appointments'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'financial_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'financial_patient_id_fkey'
+            columns: ['patient_id']
+            isOneToOne: false
+            referencedRelation: 'patients'
             referencedColumns: ['id']
           },
         ]
@@ -818,6 +1149,96 @@ export type Database = {
           },
         ]
       }
+      patients: {
+        Row: {
+          address: string | null
+          allergies: string | null
+          city: string | null
+          cpf: string | null
+          created_at: string | null
+          current_medications: string | null
+          date_of_birth: string | null
+          email: string | null
+          emergency_contact: string | null
+          emergency_phone: string | null
+          full_name: string
+          gender: string | null
+          id: string
+          marital_status: string | null
+          medical_history: string | null
+          occupation: string | null
+          organization_id: string
+          phone: string | null
+          professional_id: string
+          state: string | null
+          updated_at: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          allergies?: string | null
+          city?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          current_medications?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          full_name: string
+          gender?: string | null
+          id?: string
+          marital_status?: string | null
+          medical_history?: string | null
+          occupation?: string | null
+          organization_id: string
+          phone?: string | null
+          professional_id: string
+          state?: string | null
+          updated_at?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          allergies?: string | null
+          city?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          current_medications?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          full_name?: string
+          gender?: string | null
+          id?: string
+          marital_status?: string | null
+          medical_history?: string | null
+          occupation?: string | null
+          organization_id?: string
+          phone?: string | null
+          professional_id?: string
+          state?: string | null
+          updated_at?: string | null
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'patients_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'patients_professional_id_fkey'
+            columns: ['professional_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       prescricoes: {
         Row: {
           ativos: Json | null
@@ -919,6 +1340,76 @@ export type Database = {
           {
             foreignKeyName: 'prescricoes_profissional_id_fkey'
             columns: ['profissional_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      prescriptions: {
+        Row: {
+          created_at: string | null
+          dosage: string | null
+          duration: string | null
+          frequency: string | null
+          id: string
+          instructions: string | null
+          medication_name: string
+          organization_id: string
+          patient_id: string
+          prescribed_date: string | null
+          professional_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          dosage?: string | null
+          duration?: string | null
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          medication_name: string
+          organization_id: string
+          patient_id: string
+          prescribed_date?: string | null
+          professional_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          dosage?: string | null
+          duration?: string | null
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          medication_name?: string
+          organization_id?: string
+          patient_id?: string
+          prescribed_date?: string | null
+          professional_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'prescriptions_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'prescriptions_patient_id_fkey'
+            columns: ['patient_id']
+            isOneToOne: false
+            referencedRelation: 'patients'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'prescriptions_professional_id_fkey'
+            columns: ['professional_id']
             isOneToOne: false
             referencedRelation: 'users'
             referencedColumns: ['id']
@@ -1394,6 +1885,24 @@ export const Constants = {
 //   motivo_cancelamento: text (nullable)
 //   created_at: timestamp with time zone (nullable, default: now())
 //   updated_at: timestamp with time zone (nullable, default: now())
+// Table: anamesis
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   patient_id: uuid (not null)
+//   professional_id: uuid (not null)
+//   chief_complaint: text (nullable)
+//   history_of_present_illness: text (nullable)
+//   past_medical_history: text (nullable)
+//   family_history: text (nullable)
+//   social_history: text (nullable)
+//   review_of_systems: text (nullable)
+//   physical_examination: text (nullable)
+//   assessment: text (nullable)
+//   plan: text (nullable)
+//   custom_fields: jsonb (nullable)
+//   version: integer (nullable, default: 1)
+//   created_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
+//   updated_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
 // Table: anamnese
 //   id: uuid (not null, default: gen_random_uuid())
 //   organization_id: uuid (not null)
@@ -1474,6 +1983,17 @@ export const Constants = {
 //   objetivo_tratamento: text (not null)
 //   created_at: timestamp with time zone (nullable, default: now())
 //   updated_at: timestamp with time zone (nullable, default: now())
+// Table: appointments
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   patient_id: uuid (not null)
+//   professional_id: uuid (not null)
+//   appointment_date: timestamp without time zone (not null)
+//   duration_minutes: integer (nullable, default: 60)
+//   status: character varying (nullable, default: 'scheduled'::character varying)
+//   notes: text (nullable)
+//   created_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
+//   updated_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
 // Table: clientes
 //   id: uuid (not null, default: gen_random_uuid())
 //   nome: text (not null)
@@ -1502,6 +2022,14 @@ export const Constants = {
 //   creditos_gastos: numeric (nullable)
 //   descricao: text (nullable)
 //   created_at: timestamp with time zone (nullable, default: now())
+// Table: credits_spent
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   user_id: uuid (not null)
+//   feature: character varying (not null)
+//   credits_used: integer (not null)
+//   description: text (nullable)
+//   created_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
 // Table: exames
 //   id: uuid (not null, default: gen_random_uuid())
 //   organization_id: uuid (not null)
@@ -1539,6 +2067,21 @@ export const Constants = {
 //   status: text (not null, default: 'Pendente'::text)
 //   created_at: timestamp with time zone (not null, default: now())
 //   updated_at: timestamp with time zone (not null, default: now())
+// Table: exams
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   patient_id: uuid (not null)
+//   professional_id: uuid (not null)
+//   exam_type: character varying (not null)
+//   exam_name: character varying (not null)
+//   exam_date: date (nullable)
+//   file_url: text (nullable)
+//   file_type: character varying (nullable)
+//   file_size: integer (nullable)
+//   results: text (nullable)
+//   notes: text (nullable)
+//   created_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
+//   updated_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
 // Table: financeiro
 //   id: uuid (not null, default: gen_random_uuid())
 //   paciente_id: uuid (nullable)
@@ -1553,6 +2096,20 @@ export const Constants = {
 //   tipo_lancamento: text (nullable)
 //   forma_pagamento: text (nullable)
 //   agendamento_id: uuid (nullable)
+// Table: financial
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   patient_id: uuid (nullable)
+//   appointment_id: uuid (nullable)
+//   transaction_type: character varying (not null)
+//   amount: numeric (not null)
+//   description: text (nullable)
+//   payment_method: character varying (nullable)
+//   status: character varying (nullable, default: 'pending'::character varying)
+//   due_date: date (nullable)
+//   paid_date: date (nullable)
+//   created_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
+//   updated_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
 // Table: organizations
 //   id: uuid (not null, default: gen_random_uuid())
 //   nome_clinica: text (not null)
@@ -1586,6 +2143,29 @@ export const Constants = {
 //   status: text (nullable, default: 'ativo'::text)
 //   created_at: timestamp with time zone (nullable, default: now())
 //   updated_at: timestamp with time zone (nullable, default: now())
+// Table: patients
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   professional_id: uuid (not null)
+//   email: character varying (nullable)
+//   phone: character varying (nullable)
+//   full_name: character varying (not null)
+//   date_of_birth: date (nullable)
+//   cpf: character varying (nullable)
+//   gender: character varying (nullable)
+//   marital_status: character varying (nullable)
+//   occupation: character varying (nullable)
+//   address: text (nullable)
+//   city: character varying (nullable)
+//   state: character varying (nullable)
+//   zip_code: character varying (nullable)
+//   emergency_contact: character varying (nullable)
+//   emergency_phone: character varying (nullable)
+//   medical_history: text (nullable)
+//   allergies: text (nullable)
+//   current_medications: text (nullable)
+//   created_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
+//   updated_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
 // Table: prescricoes
 //   id: uuid (not null, default: gen_random_uuid())
 //   paciente_id: uuid (not null)
@@ -1610,6 +2190,20 @@ export const Constants = {
 //   data_geracao_ia: timestamp with time zone (nullable)
 //   pdf_url: text (nullable)
 //   data_geracao_pdf: timestamp with time zone (nullable)
+// Table: prescriptions
+//   id: uuid (not null, default: gen_random_uuid())
+//   organization_id: uuid (not null)
+//   patient_id: uuid (not null)
+//   professional_id: uuid (not null)
+//   medication_name: character varying (not null)
+//   dosage: character varying (nullable)
+//   frequency: character varying (nullable)
+//   duration: character varying (nullable)
+//   instructions: text (nullable)
+//   status: character varying (nullable, default: 'active'::character varying)
+//   prescribed_date: date (nullable)
+//   created_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
+//   updated_at: timestamp without time zone (nullable, default: CURRENT_TIMESTAMP)
 // Table: protocolos_limpeza
 //   id: uuid (not null, default: gen_random_uuid())
 //   paciente_id: uuid (not null)
@@ -1690,6 +2284,11 @@ export const Constants = {
 //   FOREIGN KEY agendamentos_paciente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE
 //   PRIMARY KEY agendamentos_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY agendamentos_profissional_id_fkey: FOREIGN KEY (profissional_id) REFERENCES users(id) ON DELETE SET NULL
+// Table: anamesis
+//   FOREIGN KEY anamesis_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   FOREIGN KEY anamesis_patient_id_fkey: FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE
+//   PRIMARY KEY anamesis_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY anamesis_professional_id_fkey: FOREIGN KEY (professional_id) REFERENCES users(id) ON DELETE SET NULL
 // Table: anamnese
 //   FOREIGN KEY anamnese_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 //   FOREIGN KEY anamnese_paciente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE
@@ -1699,12 +2298,21 @@ export const Constants = {
 //   FOREIGN KEY anamneses_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   UNIQUE anamneses_cliente_id_key: UNIQUE (cliente_id)
 //   PRIMARY KEY anamneses_pkey: PRIMARY KEY (id)
+// Table: appointments
+//   FOREIGN KEY appointments_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   FOREIGN KEY appointments_patient_id_fkey: FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE
+//   PRIMARY KEY appointments_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY appointments_professional_id_fkey: FOREIGN KEY (professional_id) REFERENCES users(id) ON DELETE SET NULL
 // Table: clientes
 //   PRIMARY KEY clientes_pkey: PRIMARY KEY (id)
 //   CHECK clientes_status_check: CHECK ((status = ANY (ARRAY['Ativo'::text, 'Inativo'::text])))
 // Table: creditos_gastos
 //   FOREIGN KEY creditos_gastos_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 //   PRIMARY KEY creditos_gastos_pkey: PRIMARY KEY (id)
+// Table: credits_spent
+//   FOREIGN KEY credits_spent_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   PRIMARY KEY credits_spent_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY credits_spent_user_id_fkey: FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 // Table: exames
 //   FOREIGN KEY exames_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 //   FOREIGN KEY exames_paciente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE
@@ -1718,6 +2326,11 @@ export const Constants = {
 //   FOREIGN KEY exames_bioquimicos_paciente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   PRIMARY KEY exames_bioquimicos_pkey: PRIMARY KEY (id)
 //   CHECK exames_bioquimicos_status_check: CHECK ((status = ANY (ARRAY['Pendente'::text, 'Interpretado'::text])))
+// Table: exams
+//   FOREIGN KEY exams_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   FOREIGN KEY exams_patient_id_fkey: FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE
+//   PRIMARY KEY exams_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY exams_professional_id_fkey: FOREIGN KEY (professional_id) REFERENCES users(id) ON DELETE SET NULL
 // Table: financeiro
 //   FOREIGN KEY financeiro_agendamento_id_fkey: FOREIGN KEY (agendamento_id) REFERENCES agendamentos(id) ON DELETE SET NULL
 //   FOREIGN KEY financeiro_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
@@ -1725,12 +2338,22 @@ export const Constants = {
 //   PRIMARY KEY financeiro_pkey: PRIMARY KEY (id)
 //   CHECK financeiro_status_check: CHECK ((status = ANY (ARRAY['Pendente'::text, 'Pago'::text])))
 //   CHECK financeiro_tipo_check: CHECK ((tipo = ANY (ARRAY['Receita'::text, 'Despesa'::text])))
+// Table: financial
+//   FOREIGN KEY financial_appointment_id_fkey: FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE SET NULL
+//   FOREIGN KEY financial_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   FOREIGN KEY financial_patient_id_fkey: FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE SET NULL
+//   PRIMARY KEY financial_pkey: PRIMARY KEY (id)
 // Table: organizations
 //   PRIMARY KEY organizations_pkey: PRIMARY KEY (id)
 // Table: pacientes
 //   FOREIGN KEY pacientes_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 //   PRIMARY KEY pacientes_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY pacientes_user_id_fkey: FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE SET NULL
+// Table: patients
+//   UNIQUE patients_cpf_key: UNIQUE (cpf)
+//   FOREIGN KEY patients_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   PRIMARY KEY patients_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY patients_professional_id_fkey: FOREIGN KEY (professional_id) REFERENCES users(id) ON DELETE SET NULL
 // Table: prescricoes
 //   FOREIGN KEY prescricoes_cliente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   FOREIGN KEY prescricoes_exame_id_fkey: FOREIGN KEY (exame_id) REFERENCES exames(id) ON DELETE SET NULL
@@ -1739,6 +2362,11 @@ export const Constants = {
 //   FOREIGN KEY prescricoes_profissional_id_fkey: FOREIGN KEY (profissional_id) REFERENCES users(id) ON DELETE SET NULL
 //   CHECK prescricoes_status_check: CHECK ((status = ANY (ARRAY['Rascunho'::text, 'Finalizada'::text])))
 //   CHECK prescricoes_tipo_prescricao_check: CHECK ((tipo_prescricao = ANY (ARRAY['Suplementação'::text, 'Protocolo'::text, 'Recomendação'::text])))
+// Table: prescriptions
+//   FOREIGN KEY prescriptions_organization_id_fkey: FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+//   FOREIGN KEY prescriptions_patient_id_fkey: FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE
+//   PRIMARY KEY prescriptions_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY prescriptions_professional_id_fkey: FOREIGN KEY (professional_id) REFERENCES users(id) ON DELETE SET NULL
 // Table: protocolos_limpeza
 //   FOREIGN KEY protocolos_limpeza_cliente_id_fkey: FOREIGN KEY (paciente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   PRIMARY KEY protocolos_limpeza_pkey: PRIMARY KEY (id)
@@ -1771,6 +2399,13 @@ export const Constants = {
 // Table: agendamentos
 //   Policy "agendamentos_isolation" (ALL, PERMISSIVE) roles={public}
 //     USING: (organization_id = get_current_user_org())
+// Table: anamesis
+//   Policy "Professionals can create anamesis" (INSERT, PERMISSIVE) roles={public}
+//     WITH CHECK: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can update anamesis" (UPDATE, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can view anamesis in their organization" (SELECT, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
 // Table: anamnese
 //   Policy "anamnese_isolation" (ALL, PERMISSIVE) roles={public}
 //     USING: (organization_id = get_current_user_org())
@@ -1784,6 +2419,13 @@ export const Constants = {
 //   Policy "authenticated_update_anamneses" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
+// Table: appointments
+//   Policy "Professionals can create appointments" (INSERT, PERMISSIVE) roles={public}
+//     WITH CHECK: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can update appointments" (UPDATE, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can view appointments in their organization" (SELECT, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
 // Table: clientes
 //   Policy "authenticated_delete_clientes" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: true
@@ -1797,6 +2439,11 @@ export const Constants = {
 // Table: creditos_gastos
 //   Policy "creditos_isolation" (ALL, PERMISSIVE) roles={public}
 //     USING: (organization_id = get_current_user_org())
+// Table: credits_spent
+//   Policy "Professionals can create credit records" (INSERT, PERMISSIVE) roles={public}
+//     WITH CHECK: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can view credit spending in their organization" (SELECT, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
 // Table: exames
 //   Policy "exames_isolation" (ALL, PERMISSIVE) roles={public}
 //     USING: (organization_id = get_current_user_org())
@@ -1820,6 +2467,13 @@ export const Constants = {
 //   Policy "authenticated_update_exames_bioquimicos" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
+// Table: exams
+//   Policy "Professionals can create exams" (INSERT, PERMISSIVE) roles={public}
+//     WITH CHECK: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can update exams" (UPDATE, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can view exams in their organization" (SELECT, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
 // Table: financeiro
 //   Policy "authenticated_delete_financeiro" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: true
@@ -1832,12 +2486,30 @@ export const Constants = {
 //     WITH CHECK: true
 //   Policy "financeiro_isolation" (ALL, PERMISSIVE) roles={public}
 //     USING: (organization_id = get_current_user_org())
+// Table: financial
+//   Policy "Professionals can create financial records" (INSERT, PERMISSIVE) roles={public}
+//     WITH CHECK: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can update financial records" (UPDATE, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can view financial data in their organization" (SELECT, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
 // Table: organizations
+//   Policy "Admins can update their organization" (UPDATE, PERMISSIVE) roles={public}
+//     USING: (id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Admins can view their organization" (SELECT, PERMISSIVE) roles={public}
+//     USING: (id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
 //   Policy "org_isolation" (ALL, PERMISSIVE) roles={public}
 //     USING: (id = get_current_user_org())
 // Table: pacientes
 //   Policy "pacientes_isolation" (ALL, PERMISSIVE) roles={public}
 //     USING: (organization_id = get_current_user_org())
+// Table: patients
+//   Policy "Professionals can create patients" (INSERT, PERMISSIVE) roles={public}
+//     WITH CHECK: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can update patients" (UPDATE, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can view patients in their organization" (SELECT, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
 // Table: prescricoes
 //   Policy "authenticated_delete_prescricoes" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: true
@@ -1850,6 +2522,13 @@ export const Constants = {
 //     WITH CHECK: true
 //   Policy "prescricoes_isolation" (ALL, PERMISSIVE) roles={public}
 //     USING: (organization_id = get_current_user_org())
+// Table: prescriptions
+//   Policy "Professionals can create prescriptions" (INSERT, PERMISSIVE) roles={public}
+//     WITH CHECK: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can update prescriptions" (UPDATE, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can view prescriptions in their organization" (SELECT, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
 // Table: protocolos_limpeza
 //   Policy "authenticated_delete_protocolos" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: true
@@ -1881,9 +2560,17 @@ export const Constants = {
 //     USING: true
 //     WITH CHECK: true
 // Table: subscriptions
+//   Policy "Admins can update subscriptions" (UPDATE, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
+//   Policy "Professionals can view subscriptions in their organization" (SELECT, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
 //   Policy "subscriptions_isolation" (ALL, PERMISSIVE) roles={public}
 //     USING: (organization_id = get_current_user_org())
 // Table: users
+//   Policy "Users can update their own profile" (UPDATE, PERMISSIVE) roles={public}
+//     USING: (id = auth.uid())
+//   Policy "Users can view users in their organization" (SELECT, PERMISSIVE) roles={public}
+//     USING: (organization_id = ((auth.jwt() ->> 'organization_id'::text))::uuid)
 //   Policy "users_isolation" (ALL, PERMISSIVE) roles={public}
 //     USING: ((organization_id = get_current_user_org()) OR (id = auth.uid()))
 // Table: usuarios
@@ -2094,30 +2781,52 @@ export const Constants = {
 //   CREATE INDEX idx_agendamentos_org_id ON public.agendamentos USING btree (organization_id)
 //   CREATE INDEX idx_agendamentos_paciente_id ON public.agendamentos USING btree (paciente_id)
 //   CREATE INDEX idx_agendamentos_profissional_id ON public.agendamentos USING btree (profissional_id)
+// Table: anamesis
+//   CREATE INDEX idx_anamesis_organization_id ON public.anamesis USING btree (organization_id)
+//   CREATE INDEX idx_anamesis_patient_id ON public.anamesis USING btree (patient_id)
 // Table: anamnese
 //   CREATE INDEX idx_anamnese_org_id ON public.anamnese USING btree (organization_id)
 //   CREATE INDEX idx_anamnese_paciente_id ON public.anamnese USING btree (paciente_id)
 //   CREATE INDEX idx_anamnese_profissional_id ON public.anamnese USING btree (profissional_id)
 // Table: anamneses
 //   CREATE UNIQUE INDEX anamneses_cliente_id_key ON public.anamneses USING btree (cliente_id)
+// Table: appointments
+//   CREATE INDEX idx_appointments_organization_id ON public.appointments USING btree (organization_id)
+//   CREATE INDEX idx_appointments_patient_id ON public.appointments USING btree (patient_id)
 // Table: creditos_gastos
 //   CREATE INDEX idx_creditos_gastos_org_id ON public.creditos_gastos USING btree (organization_id)
+// Table: credits_spent
+//   CREATE INDEX idx_credits_spent_organization_id ON public.credits_spent USING btree (organization_id)
 // Table: exames
 //   CREATE INDEX idx_exames_org_id ON public.exames USING btree (organization_id)
 //   CREATE INDEX idx_exames_paciente_id ON public.exames USING btree (paciente_id)
 //   CREATE INDEX idx_exames_profissional_id ON public.exames USING btree (profissional_id)
+// Table: exams
+//   CREATE INDEX idx_exams_organization_id ON public.exams USING btree (organization_id)
+//   CREATE INDEX idx_exams_patient_id ON public.exams USING btree (patient_id)
 // Table: financeiro
 //   CREATE INDEX idx_financeiro_agendamento_id ON public.financeiro USING btree (agendamento_id)
 //   CREATE INDEX idx_financeiro_org_id ON public.financeiro USING btree (organization_id)
 //   CREATE INDEX idx_financeiro_paciente_id ON public.financeiro USING btree (paciente_id)
+// Table: financial
+//   CREATE INDEX idx_financial_organization_id ON public.financial USING btree (organization_id)
 // Table: pacientes
 //   CREATE INDEX idx_pacientes_org_id ON public.pacientes USING btree (organization_id)
 //   CREATE INDEX idx_pacientes_user_id ON public.pacientes USING btree (user_id)
+// Table: patients
+//   CREATE INDEX idx_patients_organization_id ON public.patients USING btree (organization_id)
+//   CREATE INDEX idx_patients_professional_id ON public.patients USING btree (professional_id)
+//   CREATE UNIQUE INDEX patients_cpf_key ON public.patients USING btree (cpf)
 // Table: prescricoes
 //   CREATE INDEX idx_prescricoes_org_id ON public.prescricoes USING btree (organization_id)
 //   CREATE INDEX idx_prescricoes_paciente_id ON public.prescricoes USING btree (paciente_id)
 //   CREATE INDEX idx_prescricoes_profissional_id ON public.prescricoes USING btree (profissional_id)
+// Table: prescriptions
+//   CREATE INDEX idx_prescriptions_organization_id ON public.prescriptions USING btree (organization_id)
+//   CREATE INDEX idx_prescriptions_patient_id ON public.prescriptions USING btree (patient_id)
 // Table: subscriptions
 //   CREATE INDEX idx_subscriptions_org_id ON public.subscriptions USING btree (organization_id)
+//   CREATE INDEX idx_subscriptions_organization_id ON public.subscriptions USING btree (organization_id)
 // Table: users
 //   CREATE INDEX idx_users_org_id ON public.users USING btree (organization_id)
+//   CREATE INDEX idx_users_organization_id ON public.users USING btree (organization_id)

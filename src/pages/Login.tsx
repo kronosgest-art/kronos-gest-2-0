@@ -23,7 +23,7 @@ const loginSchema = z.object({
   password: z.string().min(6, { message: 'A senha é obrigatória' }),
 })
 
-export default function Index() {
+export default function Login() {
   const [isLoading, setIsLoading] = useState(false)
   const { signIn, user, profile } = useAuth()
   const navigate = useNavigate()
@@ -31,49 +31,42 @@ export default function Index() {
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   })
 
-  // Handle redirection if already logged in and profile is loaded
   useEffect(() => {
     if (user && profile) {
       if (profile.role === 'admin') navigate('/admin/dashboard', { replace: true })
-      else if (profile.role === 'profissional') navigate('/prof/dashboard', { replace: true })
-      else navigate('/paciente/dashboard', { replace: true })
+      else if (profile.role === 'profissional')
+        navigate('/professional/dashboard', { replace: true })
+      else navigate('/patient/dashboard', { replace: true })
     }
   }, [user, profile, navigate])
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     setIsLoading(true)
     const { error } = await signIn(data.email, data.password)
-
     if (error) {
       toast({
         variant: 'destructive',
         title: 'Erro ao entrar',
-        description: 'Credenciais inválidas. Verifique seu e-mail e senha.',
+        description: 'Credenciais inválidas.',
       })
       setIsLoading(false)
     }
-    // If successful, the useEffect above will trigger the redirect once profile loads
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-brand relative overflow-hidden bg-pattern">
       <div className="absolute inset-0 bg-gradient-to-br from-brand via-brand/90 to-black/80 mix-blend-multiply" />
-
       <div className="relative z-10 w-full max-w-md p-4 animate-slide-up">
         <div className="flex flex-col items-center mb-8 text-white">
           <div className="h-16 w-16 bg-gold rounded-2xl flex items-center justify-center text-3xl font-bold shadow-lg mb-4">
             K
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">KronosGest</h1>
+          <h1 className="text-3xl font-bold tracking-tight">KronosGest SaaS</h1>
           <p className="text-blue-200 mt-2">Saúde Integrativa & Gestão Premium</p>
         </div>
-
         <Card className="glass-card border-none shadow-2xl bg-white/95 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-brand">Acesso ao Sistema</CardTitle>
@@ -97,18 +90,12 @@ export default function Index() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel>Senha</FormLabel>
-                        <Link to="/forgot-password" className="text-xs text-brand hover:underline">
-                          Esqueceu a senha?
-                        </Link>
-                      </div>
+                      <FormLabel>Senha</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
@@ -121,10 +108,9 @@ export default function Index() {
                     </FormItem>
                   )}
                 />
-
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold text-white font-medium h-12 shadow-md transition-all duration-300 mt-2"
+                  className="w-full bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold text-white font-medium h-12 shadow-md"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -132,12 +118,11 @@ export default function Index() {
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Entrando...
                     </>
                   ) : (
-                    'Entrar no KronosGest'
+                    'Entrar'
                   )}
                 </Button>
               </form>
             </Form>
-
             <div className="mt-6 text-center text-sm text-slate-500">
               Não tem uma conta?{' '}
               <Link to="/signup" className="text-brand font-medium hover:underline">

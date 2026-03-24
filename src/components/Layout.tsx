@@ -8,7 +8,7 @@ export default function Layout() {
   const { user, loading } = useAuth()
   const location = useLocation()
 
-  const publicRoutes = ['/', '/signup', '/forgot-password']
+  const publicRoutes = ['/login', '/signup', '/forgot-password']
   const isPublicRoute = publicRoutes.includes(location.pathname)
 
   if (loading) {
@@ -24,17 +24,14 @@ export default function Layout() {
     )
   }
 
-  // Redirect to login if unauthenticated and trying to access a protected route
   if (!user && !isPublicRoute) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/login" replace />
   }
 
-  // If on a public route, just render the content (Login, Signup, etc)
   if (isPublicRoute) {
     return <Outlet />
   }
 
-  // Authenticated layout
   return (
     <SidebarProvider>
       <div className="min-h-screen bg-slate-50 flex w-full">

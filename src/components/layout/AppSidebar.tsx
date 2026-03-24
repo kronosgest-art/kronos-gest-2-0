@@ -7,7 +7,6 @@ import {
   CreditCard,
   Settings,
   HelpCircle,
-  ClipboardList,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -28,30 +27,17 @@ export function AppSidebar() {
   const isAdmin = profile?.role === 'admin'
   const isPaciente = profile?.role === 'paciente'
 
-  // Admin Items
-  const adminItems = [
-    { title: 'Dashboard', icon: LayoutDashboard, url: '/admin/dashboard' },
-    { title: 'Clínicas', icon: Building2, url: '/admin/clinicas' },
-    { title: 'Assinaturas', icon: CreditCard, url: '/admin/assinaturas' },
-    { title: 'Configurações', icon: Settings, url: '/admin/settings' },
-  ]
+  const adminItems = [{ title: 'Dashboard', icon: LayoutDashboard, url: '/admin/dashboard' }]
 
-  // Professional Items
   const profItems = [
-    { title: 'Dashboard', icon: LayoutDashboard, url: '/prof/dashboard' },
-    { title: 'Pacientes', icon: Users, url: '/prof/pacientes' },
-    { title: 'Agenda', icon: Calendar, url: '/prof/agenda' },
-    { title: 'Anamnese', icon: ClipboardList, url: '/prof/anamnese' },
-    { title: 'Exames', icon: FileText, url: '/prof/exames' },
-    { title: 'Financeiro', icon: CreditCard, url: '/prof/financeiro' },
+    { title: 'Dashboard', icon: LayoutDashboard, url: '/professional/dashboard' },
+    { title: 'Pacientes', icon: Users, url: '/professional/patients' },
+    { title: 'Agenda', icon: Calendar, url: '/professional/appointments' },
+    { title: 'Financeiro', icon: CreditCard, url: '/professional/financial' },
+    { title: 'Configurações', icon: Settings, url: '/professional/settings' },
   ]
 
-  // Patient Items
-  const pacienteItems = [
-    { title: 'Meu Painel', icon: LayoutDashboard, url: '/paciente/dashboard' },
-    { title: 'Minhas Consultas', icon: Calendar, url: '/paciente/consultas' },
-    { title: 'Meus Exames', icon: FileText, url: '/paciente/exames' },
-  ]
+  const pacienteItems = [{ title: 'Meu Painel', icon: LayoutDashboard, url: '/patient/dashboard' }]
 
   const navItems = isAdmin ? adminItems : isPaciente ? pacienteItems : profItems
 
@@ -77,11 +63,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild
-                      className={`w-full justify-start h-11 transition-all duration-200 ${
-                        isActive
-                          ? 'bg-white/10 text-gold font-medium hover:bg-white/15 hover:text-gold'
-                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                      }`}
+                      className={`w-full justify-start h-11 transition-all duration-200 ${isActive ? 'bg-white/10 text-gold font-medium' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
                     >
                       <Link to={item.url}>
                         <item.icon
@@ -103,7 +85,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="w-full justify-start text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
+              className="w-full justify-start text-slate-300 hover:bg-white/5 hover:text-white"
             >
               <a href="#">
                 <HelpCircle className="mr-3 h-5 w-5 text-slate-400" />
@@ -114,34 +96,5 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  )
-}
-
-function Building2(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="16" height="20" x="4" y="2" rx="2" ry="2" />
-      <path d="M9 22v-4h6v4" />
-      <path d="M8 6h.01" />
-      <path d="M16 6h.01" />
-      <path d="M12 6h.01" />
-      <path d="M12 10h.01" />
-      <path d="M12 14h.01" />
-      <path d="M16 10h.01" />
-      <path d="M16 14h.01" />
-      <path d="M8 10h.01" />
-      <path d="M8 14h.01" />
-    </svg>
   )
 }
