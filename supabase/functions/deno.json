@@ -1,3 +1,9 @@
 {
-  "imports": {}
+  "_versions": {
+    "interpret-bioresonance": 1,
+    "generate-prescription-suggestion": 5,
+    "generate-cleansing-protocol": 2,
+    "stripe-webhook": 2,
+    "create-checkout-session": 1
+  }
 }
