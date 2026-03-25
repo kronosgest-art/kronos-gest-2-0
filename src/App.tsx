@@ -20,6 +20,7 @@ import Prescriptions from '@/pages/professional/Prescriptions'
 import Appointments from '@/pages/professional/Appointments'
 import Financial from '@/pages/professional/Financial'
 import Settings from '@/pages/professional/Settings'
+import Credits from '@/pages/professional/Credits'
 import PatientDashboard from '@/pages/patient/Dashboard'
 
 const App = () => (
@@ -51,6 +52,7 @@ const App = () => (
                 />
                 <Route path="/professional/appointments" element={<Appointments />} />
                 <Route path="/professional/financial" element={<Financial />} />
+                <Route path="/professional/creditos" element={<Credits />} />
                 <Route path="/professional/settings" element={<Settings />} />
               </Route>
 

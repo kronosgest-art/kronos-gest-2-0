@@ -20,35 +20,35 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col gap-1 mb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-brand">
+        <h1 className="text-3xl font-bold tracking-tight text-[#1E3A8A]">
           Bem-vindo, {profile?.nome || 'Profissional'}!
         </h1>
         <p className="text-muted-foreground">Visão geral da sua clínica e atendimentos.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="hover-lift border-t-4 border-t-brand">
+        <Card className="hover-lift border-t-4 border-t-[#1E3A8A]">
           <CardContent className="pt-6">
             <div className="flex justify-between items-start">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-muted-foreground">Total Pacientes</p>
-                <p className="text-3xl font-bold text-brand">{totalPatients}</p>
+                <p className="text-3xl font-bold text-[#1E3A8A]">{totalPatients}</p>
               </div>
               <div className="p-2 bg-blue-50 rounded-lg">
-                <Users className="h-5 w-5 text-brand" />
+                <Users className="h-5 w-5 text-[#1E3A8A]" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="hover-lift border-t-4 border-t-gold">
+        <Card className="hover-lift border-t-4 border-t-[#B8860B]">
           <CardContent className="pt-6">
             <div className="flex justify-between items-start">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-muted-foreground">Agendamentos Hoje</p>
-                <p className="text-3xl font-bold text-brand">4</p>
+                <p className="text-3xl font-bold text-[#B8860B]">4</p>
               </div>
               <div className="p-2 bg-yellow-50 rounded-lg">
-                <CalendarIcon className="h-5 w-5 text-gold" />
+                <CalendarIcon className="h-5 w-5 text-[#B8860B]" />
               </div>
             </div>
           </CardContent>
@@ -84,13 +84,13 @@ export default function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-brand">Ações Rápidas</CardTitle>
+            <CardTitle className="text-[#1E3A8A]">Ações Rápidas</CardTitle>
           </CardHeader>
           <CardContent className="flex gap-4 flex-wrap">
-            <Button asChild className="bg-brand text-white hover:bg-brand/90">
+            <Button asChild className="bg-[#B8860B] hover:bg-[#A0750A] text-white shadow-md">
               <Link to="/professional/patients">Gerenciar Pacientes</Link>
             </Button>
-            <Button asChild variant="outline" className="border-brand text-brand">
+            <Button asChild className="bg-[#1E3A8A] hover:bg-[#152B6A] text-white shadow-md">
               <Link to="/professional/appointments">Ver Agenda</Link>
             </Button>
           </CardContent>

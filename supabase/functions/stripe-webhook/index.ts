@@ -40,9 +40,13 @@ Deno.serve(async (req: Request) => {
         if (customerEmail) {
           const { error } = await supabase
             .from('usuarios')
-            .update({ status: 'ativo', stripe_customer_id: customerId, updated_at: new Date().toISOString() })
+            .update({
+              status: 'ativo',
+              stripe_customer_id: customerId,
+              updated_at: new Date().toISOString(),
+            })
             .eq('email', customerEmail)
-            
+
           if (error) console.error('Error updating user on checkout complete:', error)
         }
         break
@@ -56,7 +60,7 @@ Deno.serve(async (req: Request) => {
             .from('usuarios')
             .update({ status: 'ativo', updated_at: new Date().toISOString() })
             .eq('stripe_customer_id', customerId)
-            
+
           if (error) console.error('Error updating user on payment succeeded:', error)
         }
         break
@@ -70,7 +74,7 @@ Deno.serve(async (req: Request) => {
             .from('usuarios')
             .update({ status: 'inativo', updated_at: new Date().toISOString() })
             .eq('stripe_customer_id', customerId)
-            
+
           if (error) console.error('Error updating user on payment failed:', error)
         }
         break
@@ -84,16 +88,16 @@ Deno.serve(async (req: Request) => {
             .from('usuarios')
             .update({ status: 'inativo', updated_at: new Date().toISOString() })
             .eq('stripe_customer_id', customerId)
-            
+
           if (error) console.error('Error updating user on sub deleted:', error)
         }
         break
       }
     }
 
-    return new Response(JSON.stringify({ received: true }), { 
-      status: 200, 
-      headers: { 'Content-Type': 'application/json' } 
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
     })
   } catch (error: any) {
     console.error('Webhook processing failed:', error)

@@ -25,7 +25,13 @@ export interface Patient {
   nome: string
   email?: string
   telefone?: string
+  cpf?: string
   data_nascimento?: string
+  endereco?: string
+  cidade?: string
+  estado?: string
+  profissao?: string
+  alergias?: string
   peso?: number
   altura?: number
   imc?: number
