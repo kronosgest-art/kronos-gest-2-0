@@ -3,7 +3,8 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
 }
 
 Deno.serve(async (req: Request) => {
@@ -31,28 +32,37 @@ Deno.serve(async (req: Request) => {
       Formate a resposta de maneira estruturada, com títulos e bullet points, em português claro e profissional.
     `
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: systemPrompt },
-                {
-                  inlineData: {
-                    mimeType: 'application/pdf',
-                    data: pdfBase64,
+    const generateContent = async (model: string) => {
+      return await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: systemPrompt },
+                  {
+                    inlineData: {
+                      mimeType: 'application/pdf',
+                      data: pdfBase64,
+                    },
                   },
-                },
-              ],
-            },
-          ],
-        }),
-      },
-    )
+                ],
+              },
+            ],
+          }),
+        },
+      )
+    }
+
+    let response = await generateContent('gemini-2.0-flash')
+
+    if (!response.ok) {
+      console.warn('gemini-2.0-flash failed, trying gemini-1.5-pro fallback')
+      response = await generateContent('gemini-1.5-pro')
+    }
 
     if (!response.ok) {
       const err = await response.text()
@@ -60,7 +70,9 @@ Deno.serve(async (req: Request) => {
     }
 
     const data = await response.json()
-    const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Não foi possível gerar a interpretação. Verifique o documento enviado."
+    const aiResponseText =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      'Não foi possível gerar a interpretação. Verifique o documento enviado.'
 
     return new Response(JSON.stringify({ interpretacao: aiResponseText }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
