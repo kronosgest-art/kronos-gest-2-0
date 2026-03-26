@@ -1,3 +1,17 @@
+-- Fix foreign key constraint if it incorrectly points to 'clientes' instead of 'pacientes'
+ALTER TABLE IF EXISTS public.financeiro DROP CONSTRAINT IF EXISTS financeiro_paciente_id_fkey;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pacientes') THEN
+    BEGIN
+      ALTER TABLE public.financeiro ADD CONSTRAINT financeiro_paciente_id_fkey FOREIGN KEY (paciente_id) REFERENCES public.pacientes(id) ON DELETE CASCADE;
+    EXCEPTION WHEN duplicate_object THEN
+      NULL;
+    END;
+  END IF;
+END $$;
+
 DO $$
 DECLARE
   org_id uuid;
