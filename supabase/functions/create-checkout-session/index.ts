@@ -4,8 +4,7 @@ import Stripe from 'npm:stripe@^13.0.0'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
 }
 
 Deno.serve(async (req: Request) => {
@@ -26,10 +25,9 @@ Deno.serve(async (req: Request) => {
       httpClient: Stripe.createFetchHttpClient(),
     })
 
-    const priceId =
-      plan === 'pro'
-        ? Deno.env.get('STRIPE_PRICE_PRO') || 'price_dummy_pro'
-        : Deno.env.get('STRIPE_PRICE_STARTER') || 'price_dummy_starter'
+    const priceId = plan === 'pro' 
+      ? Deno.env.get('STRIPE_PRICE_PRO') || 'price_dummy_pro'
+      : Deno.env.get('STRIPE_PRICE_STARTER') || 'price_dummy_starter'
 
     const origin = req.headers.get('origin') || 'http://localhost:5173'
 
