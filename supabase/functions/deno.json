@@ -2,7 +2,7 @@
   "_versions": {
     "interpret-bioresonance": 3,
     "generate-prescription-suggestion": 7,
-    "generate-cleansing-protocol": 6,
+    "generate-cleansing-protocol": 7,
     "stripe-webhook": 6,
     "create-checkout-session": 3,
     "functions": 3,

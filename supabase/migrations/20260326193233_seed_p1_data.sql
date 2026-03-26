@@ -5,6 +5,10 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pacientes') THEN
     BEGIN
+      -- Delete orphaned financeiro records before applying the foreign key constraint
+      DELETE FROM public.financeiro 
+      WHERE paciente_id IS NOT NULL AND paciente_id NOT IN (SELECT id FROM public.pacientes);
+
       ALTER TABLE public.financeiro ADD CONSTRAINT financeiro_paciente_id_fkey FOREIGN KEY (paciente_id) REFERENCES public.pacientes(id) ON DELETE CASCADE;
     EXCEPTION WHEN duplicate_object THEN
       NULL;
