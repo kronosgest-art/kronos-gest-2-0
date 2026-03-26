@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { examService } from '@/services/examService'
 import { Exam } from '@/types'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, FileText, Upload, Trash2 } from 'lucide-react'
+import { ArrowLeft, FileText, Upload, Trash2, Sparkles } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -34,7 +34,10 @@ export default function Exams() {
           </Button>
           <h2 className="text-2xl font-bold text-brand">Exames do Paciente</h2>
         </div>
-        <Button className="bg-brand text-white">
+        <Button
+          onClick={() => navigate(`/professional/patients/${pacienteId}/upload-exames`)}
+          className="bg-gold hover:bg-gold-hover text-white"
+        >
           <Upload className="mr-2 h-4 w-4" /> Upload de Exame
         </Button>
       </div>
@@ -56,10 +59,32 @@ export default function Exams() {
             <TableBody>
               {exams.map((e) => (
                 <TableRow key={e.id}>
-                  <TableCell>{new Date(e.data_exame || '').toLocaleDateString('pt-BR')}</TableCell>
+                  <TableCell>
+                    {new Date(e.data_exame || e.created_at || '').toLocaleDateString('pt-BR')}
+                  </TableCell>
                   <TableCell className="capitalize">{e.tipo_exame}</TableCell>
-                  <TableCell>{e.status_interpretacao || 'Pendente'}</TableCell>
+                  <TableCell>
+                    {e.status_interpretacao === 'Interpretado' ? (
+                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                        Interpretado
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+                        Pendente
+                      </span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right flex justify-end gap-2">
+                    {e.interpretacao_ia && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-gold"
+                        onClick={() => alert(e.interpretacao_ia)}
+                      >
+                        <Sparkles className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button variant="ghost" size="icon" className="text-blue-600">
                       <FileText className="h-4 w-4" />
                     </Button>
@@ -78,6 +103,13 @@ export default function Exams() {
                   </TableCell>
                 </TableRow>
               ))}
+              {exams.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                    Nenhum exame cadastrado.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>

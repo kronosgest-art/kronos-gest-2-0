@@ -42,7 +42,7 @@ export interface Patient {
 }
 
 export interface Anamnese {
-  id: string
+  id?: string
   organization_id: string
   paciente_id: string
   profissional_id?: string
@@ -54,6 +54,7 @@ export interface Anamnese {
   historico_familiar?: string[]
   observacoes_profissional?: string
   created_at?: string
+  [key: string]: any
 }
 
 export interface Exam {
@@ -71,7 +72,7 @@ export interface Exam {
 }
 
 export interface Prescription {
-  id: string
+  id?: string
   organization_id: string
   paciente_id: string
   profissional_id?: string
@@ -79,6 +80,9 @@ export interface Prescription {
   observacoes?: string
   data_prescricao: string
   status?: string
+  itens_prescricao?: any
+  gerado_por_ia?: boolean
+  pdf_url?: string
   created_at?: string
 }
 

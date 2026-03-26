@@ -20,6 +20,7 @@ import UploadExames from '@/pages/professional/UploadExames'
 import ProtocolosLimpeza from '@/pages/professional/ProtocolosLimpeza'
 import Exams from '@/pages/professional/Exams'
 import Prescriptions from '@/pages/professional/Prescriptions'
+import NewPrescription from '@/pages/professional/NewPrescription'
 import Appointments from '@/pages/professional/Appointments'
 import Financial from '@/pages/professional/Financial'
 import Settings from '@/pages/professional/Settings'
@@ -61,6 +62,10 @@ const App = () => (
                 <Route
                   path="/professional/patients/:pacienteId/prescriptions"
                   element={<Prescriptions />}
+                />
+                <Route
+                  path="/professional/patients/:pacienteId/prescriptions/new"
+                  element={<NewPrescription />}
                 />
                 <Route path="/professional/appointments" element={<Appointments />} />
                 <Route path="/professional/financial" element={<Financial />} />
