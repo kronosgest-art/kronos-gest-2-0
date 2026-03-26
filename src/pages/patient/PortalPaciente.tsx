@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Calendar, Pill, Check, X } from 'lucide-react'
 
-export default function PatientDashboard() {
+export default function PortalPaciente() {
   const { profile } = useAuth()
   const [upcomingApps, setUpcomingApps] = useState<any[]>([])
   const [history, setHistory] = useState<any[]>([])
@@ -20,6 +20,7 @@ export default function PatientDashboard() {
         .select('id')
         .eq('email', profile.email)
         .maybeSingle()
+
       if (pac) {
         const { data: agendamentos } = await supabase
           .from('agendamentos')
@@ -71,7 +72,7 @@ export default function PatientDashboard() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                    <Button size="sm" className="bg-[#B8860B] hover:bg-[#A0750A] text-white">
                       <Check className="h-4 w-4 mr-1" /> Confirmar
                     </Button>
                     <Button

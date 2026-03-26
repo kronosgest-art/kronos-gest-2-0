@@ -14,14 +14,17 @@ import AdminDashboard from '@/pages/admin/Dashboard'
 import ProfDashboard from '@/pages/professional/Dashboard'
 import Patients from '@/pages/professional/Patients'
 import PatientDetail from '@/pages/professional/PatientDetail'
-import Anamesis from '@/pages/professional/Anamesis'
+import Anamnese from '@/pages/professional/Anamnese'
+import TCLE from '@/pages/professional/TCLE'
+import UploadExames from '@/pages/professional/UploadExames'
+import ProtocolosLimpeza from '@/pages/professional/ProtocolosLimpeza'
 import Exams from '@/pages/professional/Exams'
 import Prescriptions from '@/pages/professional/Prescriptions'
 import Appointments from '@/pages/professional/Appointments'
 import Financial from '@/pages/professional/Financial'
 import Settings from '@/pages/professional/Settings'
 import Credits from '@/pages/professional/Credits'
-import PatientDashboard from '@/pages/patient/Dashboard'
+import PortalPaciente from '@/pages/patient/PortalPaciente'
 
 const App = () => (
   <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
@@ -44,7 +47,16 @@ const App = () => (
                 <Route path="/professional/dashboard" element={<ProfDashboard />} />
                 <Route path="/professional/patients" element={<Patients />} />
                 <Route path="/professional/patients/:id" element={<PatientDetail />} />
-                <Route path="/professional/patients/:pacienteId/anamesis" element={<Anamesis />} />
+                <Route path="/professional/patients/:pacienteId/anamesis" element={<Anamnese />} />
+                <Route path="/professional/patients/:pacienteId/tcle" element={<TCLE />} />
+                <Route
+                  path="/professional/patients/:pacienteId/upload-exames"
+                  element={<UploadExames />}
+                />
+                <Route
+                  path="/professional/patients/:pacienteId/protocolos"
+                  element={<ProtocolosLimpeza />}
+                />
                 <Route path="/professional/patients/:pacienteId/exams" element={<Exams />} />
                 <Route
                   path="/professional/patients/:pacienteId/prescriptions"
@@ -57,7 +69,7 @@ const App = () => (
               </Route>
 
               <Route element={<ProtectedRoute allowedRoles={['paciente']} />}>
-                <Route path="/patient/dashboard" element={<PatientDashboard />} />
+                <Route path="/patient/dashboard" element={<PortalPaciente />} />
               </Route>
             </Route>
           </Routes>

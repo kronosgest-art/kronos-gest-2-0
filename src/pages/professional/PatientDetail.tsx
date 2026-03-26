@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, FileText, ClipboardList, Pill } from 'lucide-react'
+import { ArrowLeft, FileText, ClipboardList, Pill, Upload } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 
@@ -209,7 +209,6 @@ export default function PatientDetail() {
                       onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                     />
                   </div>
-
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
                       CPF <span className="text-red-500">*</span>
@@ -221,7 +220,6 @@ export default function PatientDetail() {
                       placeholder="000.000.000-00"
                     />
                   </div>
-
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
                       Data de Nascimento <span className="text-red-500">*</span>
@@ -235,7 +233,6 @@ export default function PatientDetail() {
                       }
                     />
                   </div>
-
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
                       Email <span className="text-red-500">*</span>
@@ -247,7 +244,6 @@ export default function PatientDetail() {
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     />
                   </div>
-
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
                       Telefone <span className="text-red-500">*</span>
@@ -262,7 +258,6 @@ export default function PatientDetail() {
                       placeholder="(00) 00000-0000"
                     />
                   </div>
-
                   <div className="space-y-2 md:col-span-2">
                     <label className="text-sm font-medium">Endereço</label>
                     <Input
@@ -270,7 +265,6 @@ export default function PatientDetail() {
                       onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
                     />
                   </div>
-
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Cidade</label>
                     <Input
@@ -278,7 +272,6 @@ export default function PatientDetail() {
                       onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
                     />
                   </div>
-
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Estado</label>
                     <Select
@@ -297,7 +290,6 @@ export default function PatientDetail() {
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div className="space-y-2 md:col-span-2">
                     <label className="text-sm font-medium">Profissão</label>
                     <Input
@@ -305,7 +297,6 @@ export default function PatientDetail() {
                       onChange={(e) => setFormData({ ...formData, profissao: e.target.value })}
                     />
                   </div>
-
                   <div className="space-y-2 md:col-span-2">
                     <label className="text-sm font-medium">Alergias</label>
                     <Textarea
@@ -355,8 +346,35 @@ export default function PatientDetail() {
                   variant="outline"
                   className="w-full justify-start text-[#1E3A8A] border-[#1E3A8A]/20 hover:bg-[#1E3A8A]/5"
                 >
+                  <Link to={`/professional/patients/${id}/tcle`}>
+                    <FileText className="mr-2 h-4 w-4" /> TCLE
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start text-[#1E3A8A] border-[#1E3A8A]/20 hover:bg-[#1E3A8A]/5"
+                >
+                  <Link to={`/professional/patients/${id}/upload-exames`}>
+                    <Upload className="mr-2 h-4 w-4" /> Upload de Exames
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start text-[#1E3A8A] border-[#1E3A8A]/20 hover:bg-[#1E3A8A]/5"
+                >
+                  <Link to={`/professional/patients/${id}/protocolos`}>
+                    <ClipboardList className="mr-2 h-4 w-4" /> Protocolos de Limpeza
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start text-[#1E3A8A] border-[#1E3A8A]/20 hover:bg-[#1E3A8A]/5"
+                >
                   <Link to={`/professional/patients/${id}/exams`}>
-                    <FileText className="mr-2 h-4 w-4" /> Exames
+                    <FileText className="mr-2 h-4 w-4" /> Histórico de Exames
                   </Link>
                 </Button>
                 <Button
