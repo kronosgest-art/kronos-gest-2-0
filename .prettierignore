@@ -1,0 +1,2 @@
+# Ignore auto-managed deno.json to prevent oxfmt syntax errors
+supabase/functions/deno.json
