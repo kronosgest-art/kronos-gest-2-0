@@ -3,8 +3,7 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
 }
 
 Deno.serve(async (req: Request) => {
@@ -15,7 +14,7 @@ Deno.serve(async (req: Request) => {
   try {
     const body = await req.json()
     const { clienteId, patientData, anamnese, exameBioquimico, exameBiofisico } = body
-
+    
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
 
     if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not configured')
@@ -73,9 +72,9 @@ Deno.serve(async (req: Request) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: systemPrompt }] }],
-          generationConfig: { responseMimeType: 'application/json' },
+          generationConfig: { responseMimeType: "application/json" }
         }),
-      },
+      }
     )
 
     if (!response.ok) {
@@ -84,12 +83,12 @@ Deno.serve(async (req: Request) => {
     }
 
     const data = await response.json()
-    const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}'
+    const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}"
     let parsedSuggestion = {}
-
+    
     try {
       parsedSuggestion = JSON.parse(aiResponseText)
-    } catch (e) {
+    } catch(e) {
       console.error('Error parsing JSON from AI', e)
     }
 
