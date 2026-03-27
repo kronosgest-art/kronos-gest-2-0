@@ -3,8 +3,7 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
 }
 
 Deno.serve(async (req: Request) => {
@@ -18,11 +17,9 @@ Deno.serve(async (req: Request) => {
 
     if (!pdfBase64) {
       console.error('[interpret-bioresonance] PDF data is missing')
-      throw new Error(
-        'Os dados do PDF (pdfBase64) não foram fornecidos ou não puderam ser lidos corretamente.',
-      )
+      throw new Error('Os dados do PDF (pdfBase64) não foram fornecidos ou não puderam ser lidos corretamente.')
     }
-
+    
     console.log(`[interpret-bioresonance] Received PDF with length: ${pdfBase64.length}`)
 
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
@@ -48,7 +45,7 @@ Deno.serve(async (req: Request) => {
       console.log(`[interpret-bioresonance] Calling Gemini API with model: ${model}`)
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 seconds timeout
-
+      
       try {
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
@@ -78,15 +75,13 @@ Deno.serve(async (req: Request) => {
       } catch (err: any) {
         clearTimeout(timeoutId)
         if (err.name === 'AbortError') {
-          throw new Error(
-            `A requisição para o Gemini (modelo ${model}) excedeu o tempo limite de 30 segundos.`,
-          )
+          throw new Error(`A requisição para o Gemini (modelo ${model}) excedeu o tempo limite de 30 segundos.`)
         }
         throw err
       }
     }
 
-    let response: Response
+    let response: Response;
     try {
       response = await generateContent('gemini-2.0-flash')
     } catch (err: any) {
@@ -96,47 +91,31 @@ Deno.serve(async (req: Request) => {
 
     if (!response.ok) {
       const err = await response.text()
-      console.warn(
-        `[interpret-bioresonance] gemini-2.0-flash failed with status ${response.status}: ${err}`,
-      )
+      console.warn(`[interpret-bioresonance] gemini-2.0-flash failed with status ${response.status}: ${err}`)
       console.log('[interpret-bioresonance] Falling back to model: gemini-1.5-pro')
-
+      
       try {
         response = await generateContent('gemini-1.5-pro')
       } catch (err2: any) {
-        console.error(
-          '[interpret-bioresonance] Error calling fallback gemini-1.5-pro:',
-          err2.message,
-        )
+        console.error('[interpret-bioresonance] Error calling fallback gemini-1.5-pro:', err2.message)
         throw new Error(`Erro de rede no fallback gemini-1.5-pro: ${err2.message}`)
       }
     }
 
     if (!response.ok) {
       const err = await response.text()
-      console.error(
-        `[interpret-bioresonance] Fallback gemini-1.5-pro also failed with status ${response.status}: ${err}`,
-      )
-      throw new Error(
-        `Falha ao gerar conteúdo da API do Gemini (ambos os modelos falharam). Detalhes: ${err}`,
-      )
+      console.error(`[interpret-bioresonance] Fallback gemini-1.5-pro also failed with status ${response.status}: ${err}`)
+      throw new Error(`Falha ao gerar conteúdo da API do Gemini (ambos os modelos falharam). Detalhes: ${err}`)
     }
 
     const data = await response.json()
-    console.log(
-      `[interpret-bioresonance] Success response from Gemini. Candidates count: ${data.candidates?.length}`,
-    )
-
+    console.log(`[interpret-bioresonance] Success response from Gemini. Candidates count: ${data.candidates?.length}`)
+    
     const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text
-
+    
     if (!aiResponseText) {
-      console.error(
-        '[interpret-bioresonance] No text returned from Gemini API.',
-        JSON.stringify(data),
-      )
-      throw new Error(
-        'A IA não retornou nenhum texto. Verifique se o documento PDF é válido e possui conteúdo legível.',
-      )
+      console.error('[interpret-bioresonance] No text returned from Gemini API.', JSON.stringify(data))
+      throw new Error("A IA não retornou nenhum texto. Verifique se o documento PDF é válido e possui conteúdo legível.")
     }
 
     console.log('[interpret-bioresonance] Finished processing successfully.')
