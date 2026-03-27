@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils'
 import * as pdfjsLib from 'pdfjs-dist'
 
 // Configurar worker ANTES de qualquer operação
-const workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.js`
+const workerSrc = `https://unpkg.com/pdfjs-dist@4.10.38/build/pdf.worker.mjs`
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
 async function extractPdfText(file: File): Promise<string> {
@@ -54,10 +54,17 @@ interface ComparisonItem {
   status: string
 }
 
+interface SugestaoReceita {
+  item: string
+  dosagem_posologia: string
+  justificativa: string
+}
+
 interface InterpretationResult {
   tabela_comparacao: ComparisonItem[]
   interpretacao_integrativa: string
   recomendacoes_terapeuticas: string[]
+  sugestao_receita?: SugestaoReceita[]
 }
 
 export default function Exams() {
@@ -274,75 +281,112 @@ export default function Exams() {
       </div>
 
       {interpretationResult && (
-        <Card className="border-gold shadow-md">
-          <CardHeader className="bg-brand/5 border-b border-gold/20 pb-4">
-            <CardTitle className="text-brand flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-gold" /> Resultado da Interpretação
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-8">
-            <div>
-              <h3 className="text-lg font-semibold text-brand mb-4">Tabela de Comparação</h3>
-              <div className="rounded-md border overflow-hidden">
-                <Table>
-                  <TableHeader className="bg-brand/5">
-                    <TableRow>
-                      <TableHead className="font-semibold text-brand">Exame</TableHead>
-                      <TableHead className="font-semibold text-brand">Valor Paciente</TableHead>
-                      <TableHead className="font-semibold text-brand">Valor Referência</TableHead>
-                      <TableHead className="font-semibold text-brand">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {interpretationResult.tabela_comparacao.map((item, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-medium">{item.exame}</TableCell>
-                        <TableCell>{item.valor_paciente}</TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {item.valor_referencia}
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            className={cn(
-                              'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                              item.status.toLowerCase().includes('normal') ||
-                                item.status.toLowerCase().includes('adequado')
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800',
-                            )}
-                          >
-                            {item.status}
-                          </span>
-                        </TableCell>
+        <div className="space-y-6">
+          <Card className="border-gold shadow-md">
+            <CardHeader className="bg-brand/5 border-b border-gold/20 pb-4">
+              <CardTitle className="text-brand flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-gold" /> Resultado da Interpretação
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-8">
+              <div>
+                <h3 className="text-lg font-semibold text-brand mb-4">Tabela de Comparação</h3>
+                <div className="rounded-md border overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-brand/5">
+                      <TableRow>
+                        <TableHead className="font-semibold text-brand">Exame</TableHead>
+                        <TableHead className="font-semibold text-brand">Valor Paciente</TableHead>
+                        <TableHead className="font-semibold text-brand">Valor Referência</TableHead>
+                        <TableHead className="font-semibold text-brand">Status</TableHead>
                       </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {interpretationResult.tabela_comparacao.map((item, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell className="font-medium">{item.exame}</TableCell>
+                          <TableCell>{item.valor_paciente}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {item.valor_referencia}
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className={cn(
+                                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                                item.status.toLowerCase().includes('normal') ||
+                                  item.status.toLowerCase().includes('adequado')
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800',
+                              )}
+                            >
+                              {item.status}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-brand mb-2">Interpretação Integrativa</h3>
+                <div className="bg-brand/5 p-4 rounded-lg border border-brand/10">
+                  <p className="text-gray-700 leading-relaxed text-sm">
+                    {interpretationResult.interpretacao_integrativa}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-brand mb-2">
+                  Recomendações Terapêuticas
+                </h3>
+                <ul className="space-y-2">
+                  {interpretationResult.recomendacoes_terapeuticas.map((rec, idx) => (
+                    <li key={idx} className="flex gap-2 text-sm text-gray-700">
+                      <div className="h-1.5 w-1.5 rounded-full bg-gold mt-2 shrink-0" />
+                      <span>{rec}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          {interpretationResult.sugestao_receita &&
+            interpretationResult.sugestao_receita.length > 0 && (
+              <Card className="border-gold shadow-md bg-gradient-to-br from-white to-gold/5">
+                <CardHeader className="border-b border-gold/20 pb-4">
+                  <CardTitle className="text-brand flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-gold" />
+                    Sugestão de Receita (SBPC/ML e SPC)
+                  </CardTitle>
+                  <CardDescription>
+                    Sugestões de nutracêuticos e suplementos geradas a partir da interpretação
+                    clínica.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {interpretationResult.sugestao_receita.map((receita, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-white p-4 rounded-lg border border-gold/20 shadow-sm relative overflow-hidden"
+                      >
+                        <div className="absolute top-0 left-0 w-1 h-full bg-gold"></div>
+                        <h4 className="font-semibold text-brand mb-1">{receita.item}</h4>
+                        <p className="text-sm font-medium text-gray-700 mb-2">
+                          {receita.dosagem_posologia}
+                        </p>
+                        <p className="text-xs text-gray-500 italic">{receita.justificativa}</p>
+                      </div>
                     ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-brand mb-2">Interpretação Integrativa</h3>
-              <div className="bg-brand/5 p-4 rounded-lg border border-brand/10">
-                <p className="text-gray-700 leading-relaxed text-sm">
-                  {interpretationResult.interpretacao_integrativa}
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-brand mb-2">Recomendações Terapêuticas</h3>
-              <ul className="space-y-2">
-                {interpretationResult.recomendacoes_terapeuticas.map((rec, idx) => (
-                  <li key={idx} className="flex gap-2 text-sm text-gray-700">
-                    <div className="h-1.5 w-1.5 rounded-full bg-gold mt-2 shrink-0" />
-                    <span>{rec}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+        </div>
       )}
 
       <Card>
