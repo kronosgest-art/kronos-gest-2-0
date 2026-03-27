@@ -6,7 +6,7 @@
     "stripe-webhook": 6,
     "create-checkout-session": 3,
     "functions": 3,
-    "interpret-laboratorial": 11,
+    "interpret-laboratorial": 12,
     "generate-pdf": 1,
     "generate-encaminhamento": 1
   }

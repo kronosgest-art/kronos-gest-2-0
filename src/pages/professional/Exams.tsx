@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { examService } from '@/services/examService'
@@ -20,6 +20,14 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import * as pdfjsLib from 'pdfjs-dist'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 
 // Configurar worker ANTES de qualquer operação
 const workerSrc = `https://unpkg.com/pdfjs-dist@4.10.38/build/pdf.worker.mjs`
@@ -65,12 +73,12 @@ interface InterpretationResult {
   interpretacao_integrativa: string
   recomendacoes_terapeuticas: string[]
   sugestao_receita?: SugestaoReceita[]
+  exame_id?: string
 }
 
 export default function Exams() {
   const { pacienteId } = useParams<{ pacienteId: string }>()
   const navigate = useNavigate()
-  const { profile } = useAuth()
   const { toast } = useToast()
   const [exams, setExams] = useState<Exam[]>([])
 
@@ -88,6 +96,30 @@ export default function Exams() {
   useEffect(() => {
     if (pacienteId) examService.getByPatient(pacienteId).then(setExams)
   }, [pacienteId])
+
+  const previousExamWithSuggestion = useMemo(() => {
+    if (!interpretationResult) return null
+    const currentExamId = interpretationResult.exame_id
+    return exams.find(
+      (e) =>
+        e.id !== currentExamId &&
+        ((e as any).sugestao_receita ||
+          (e.interpretacao_ia && e.interpretacao_ia.includes('sugestao_receita'))),
+    )
+  }, [exams, interpretationResult])
+
+  const parseOldSuggestion = (exam: any) => {
+    if (exam.sugestao_receita) return exam.sugestao_receita
+    if (exam.interpretacao_ia) {
+      try {
+        const parsed = JSON.parse(exam.interpretacao_ia)
+        return parsed.sugestao_receita || []
+      } catch (e) {
+        return []
+      }
+    }
+    return []
+  }
 
   const onDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -149,7 +181,7 @@ export default function Exams() {
 
     try {
       const { data, error } = await supabase.functions.invoke('interpret-laboratorial', {
-        body: { examData: extractedText },
+        body: { examData: extractedText, pacienteId },
       })
 
       if (error) throw error
@@ -160,9 +192,13 @@ export default function Exams() {
 
       setInterpretationResult(data)
       toast({
-        title: 'Sucesso',
-        description: 'Exame interpretado com sucesso.',
+        title: '✅ Exame salvo com sucesso no prontuário do paciente',
+        description: 'Exame interpretado e salvo com sucesso.',
       })
+
+      if (pacienteId) {
+        examService.getByPatient(pacienteId).then(setExams)
+      }
     } catch (err: any) {
       const message = err.message || err.details || 'Erro desconhecido ao interpretar exame.'
       setErrorMsg(message)
@@ -174,6 +210,10 @@ export default function Exams() {
     } finally {
       setIsInterpreting(false)
     }
+  }
+
+  const scrollToHistory = () => {
+    document.getElementById('historico-table')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
@@ -250,9 +290,16 @@ export default function Exams() {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-brand">Texto Extraído</CardTitle>
-            <CardDescription>Revise os dados extraídos antes de enviar para a IA.</CardDescription>
+          <CardHeader className="flex flex-row items-start justify-between space-y-0">
+            <div>
+              <CardTitle className="text-brand">Texto Extraído</CardTitle>
+              <CardDescription>
+                Revise os dados extraídos antes de enviar para a IA.
+              </CardDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={scrollToHistory}>
+              <FileText className="mr-2 h-4 w-4" /> 📋 Ver Histórico de Exames
+            </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             <Textarea
@@ -356,42 +403,90 @@ export default function Exams() {
 
           {interpretationResult.sugestao_receita &&
             interpretationResult.sugestao_receita.length > 0 && (
-              <Card className="border-gold shadow-md bg-gradient-to-br from-white to-gold/5">
-                <CardHeader className="border-b border-gold/20 pb-4">
-                  <CardTitle className="text-brand flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-gold" />
-                    Sugestão de Receita (SBPC/ML e SPC)
-                  </CardTitle>
-                  <CardDescription>
-                    Sugestões de nutracêuticos e suplementos geradas a partir da interpretação
-                    clínica.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {interpretationResult.sugestao_receita.map((receita, idx) => (
-                      <div
-                        key={idx}
-                        className="bg-white p-4 rounded-lg border border-gold/20 shadow-sm relative overflow-hidden"
-                      >
-                        <div className="absolute top-0 left-0 w-1 h-full bg-gold"></div>
-                        <h4 className="font-semibold text-brand mb-1">{receita.item}</h4>
-                        <p className="text-sm font-medium text-gray-700 mb-2">
-                          {receita.dosagem_posologia}
-                        </p>
-                        <p className="text-xs text-gray-500 italic">{receita.justificativa}</p>
+              <div className="space-y-6">
+                <Card className="border-gold shadow-md bg-gradient-to-br from-white to-gold/5">
+                  <CardHeader className="border-b border-gold/20 pb-4">
+                    <CardTitle className="text-brand flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-gold" />
+                      Sugestão de Receita Atual (SBPC/ML e SPC)
+                    </CardTitle>
+                    <CardDescription>
+                      Sugestões de nutracêuticos e suplementos geradas a partir da interpretação
+                      atual.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {interpretationResult.sugestao_receita.map((receita, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-white p-4 rounded-lg border border-gold/20 shadow-sm relative overflow-hidden"
+                        >
+                          <div className="absolute top-0 left-0 w-1 h-full bg-gold"></div>
+                          <h4 className="font-semibold text-brand mb-1">{receita.item}</h4>
+                          <p className="text-sm font-medium text-gray-700 mb-2">
+                            {receita.dosagem_posologia}
+                          </p>
+                          <p className="text-xs text-gray-500 italic">{receita.justificativa}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {previousExamWithSuggestion && (
+                  <Card className="border-gray-200 shadow-sm bg-gray-50/50">
+                    <CardHeader className="border-b border-gray-200 pb-4">
+                      <CardTitle className="text-gray-700 flex items-center gap-2 text-lg">
+                        <ArrowLeft className="h-5 w-5 text-gray-400" />
+                        Comparação: Sugestão Anterior (
+                        {new Date(
+                          previousExamWithSuggestion.data_exame ||
+                            previousExamWithSuggestion.created_at ||
+                            '',
+                        ).toLocaleDateString('pt-BR')}
+                        )
+                      </CardTitle>
+                      <CardDescription>
+                        Para sua referência, esta foi a sugestão gerada no exame laboratorial
+                        anterior.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <div className="grid gap-4 md:grid-cols-2 opacity-80">
+                        {parseOldSuggestion(previousExamWithSuggestion).map(
+                          (receita: any, idx: number) => (
+                            <div
+                              key={idx}
+                              className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm relative overflow-hidden"
+                            >
+                              <div className="absolute top-0 left-0 w-1 h-full bg-gray-300"></div>
+                              <h4 className="font-semibold text-gray-700 mb-1">{receita.item}</h4>
+                              <p className="text-sm font-medium text-gray-600 mb-2">
+                                {receita.dosagem_posologia}
+                              </p>
+                              <p className="text-xs text-gray-400 italic">
+                                {receita.justificativa}
+                              </p>
+                            </div>
+                          ),
+                        )}
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             )}
         </div>
       )}
 
-      <Card>
+      <Card id="historico-table" className="scroll-mt-6">
         <CardHeader>
           <CardTitle>Histórico de Exames</CardTitle>
+          <CardDescription>
+            Visualize todos os exames anteriores e suas respectivas interpretações e receitas
+            sugeridas.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -422,16 +517,74 @@ export default function Exams() {
                     )}
                   </TableCell>
                   <TableCell className="text-right flex justify-end gap-2">
-                    {e.interpretacao_ia && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-gold hover:text-gold-hover"
-                        onClick={() => alert(e.interpretacao_ia)}
-                      >
-                        <Sparkles className="h-4 w-4" />
-                      </Button>
-                    )}
+                    {e.interpretacao_ia || (e as any).sugestao_receita ? (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-gold hover:text-gold-hover flex items-center gap-1"
+                          >
+                            <Sparkles className="h-4 w-4" />{' '}
+                            <span className="hidden sm:inline">Ver Receita</span>
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>
+                              Sugestão de Receita (
+                              {new Date(e.data_exame || e.created_at || '').toLocaleDateString(
+                                'pt-BR',
+                              )}
+                              )
+                            </DialogTitle>
+                            <DialogDescription>
+                              Interpretação e sugestões baseadas nos padrões SBPC/ML e SPC.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 pt-4">
+                            {parseOldSuggestion(e).length > 0 ? (
+                              <div className="grid gap-4 md:grid-cols-2">
+                                {parseOldSuggestion(e).map((receita: any, idx: number) => (
+                                  <div
+                                    key={idx}
+                                    className="bg-white p-4 rounded-lg border border-gold/20 shadow-sm relative overflow-hidden"
+                                  >
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-gold"></div>
+                                    <h4 className="font-semibold text-brand mb-1">
+                                      {receita.item}
+                                    </h4>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">
+                                      {receita.dosagem_posologia}
+                                    </p>
+                                    <p className="text-xs text-gray-500 italic">
+                                      {receita.justificativa}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-500">
+                                Nenhuma sugestão de receita estruturada encontrada para este exame.
+                              </p>
+                            )}
+
+                            {(e as any).interpretacao && (
+                              <div className="mt-6">
+                                <h4 className="font-semibold text-brand mb-2">
+                                  Interpretação Integrativa
+                                </h4>
+                                <div className="bg-brand/5 p-4 rounded-lg border border-brand/10">
+                                  <p className="text-gray-700 text-sm">
+                                    {(e as any).interpretacao}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    ) : null}
                     <Button variant="ghost" size="icon" className="text-brand">
                       <FileText className="h-4 w-4" />
                     </Button>
