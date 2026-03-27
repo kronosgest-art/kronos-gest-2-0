@@ -3,8 +3,7 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
 }
 
 Deno.serve(async (req: Request) => {
@@ -70,9 +69,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const data = await response.json()
-    const aiResponseText =
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      'Não foi possível gerar a interpretação. Verifique o documento enviado.'
+    const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Não foi possível gerar a interpretação. Verifique o documento enviado."
 
     return new Response(JSON.stringify({ interpretacao: aiResponseText }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
