@@ -21,7 +21,31 @@ import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import * as pdfjsLib from 'pdfjs-dist'
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+// Configurar worker ANTES de qualquer operação
+const workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.js`
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
+
+async function extractPdfText(file: File): Promise<string> {
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error('PDF muito grande. Máximo 5MB')
+  }
+
+  const arrayBuffer = await file.arrayBuffer()
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+  let text = ''
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i)
+    const content = await page.getTextContent()
+    text += content.items.map((item: any) => item.str).join(' ') + '\n'
+  }
+
+  if (!text.trim()) {
+    throw new Error('PDF é uma imagem. Transcreva manualmente')
+  }
+
+  return text
+}
 
 interface ComparisonItem {
   exame: string
@@ -91,30 +115,10 @@ export default function Exams() {
       return
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setErrorMsg('PDF muito grande. Máximo 5MB')
-      return
-    }
-
     setIsExtracting(true)
     try {
-      const arrayBuffer = await file.arrayBuffer()
-
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      let fullText = ''
-
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i)
-        const textContent = await page.getTextContent()
-        const pageText = textContent.items.map((item: any) => item.str).join(' ')
-        fullText += pageText + '\n'
-      }
-
-      if (!fullText || fullText.trim().length === 0) {
-        throw new Error('PDF é uma imagem. Transcreva manualmente')
-      }
-
-      setExtractedText(fullText)
+      const extractedText = await extractPdfText(file)
+      setExtractedText(extractedText)
       toast({
         title: 'Sucesso',
         description: 'Texto extraído do PDF com sucesso.',
