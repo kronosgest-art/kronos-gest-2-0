@@ -21,10 +21,7 @@ import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import * as pdfjsLib from 'pdfjs-dist'
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url,
-).href
+pdfjsLib.GlobalWorkerOptions.workerSrc = `${window.location.origin}/pdf.worker.min.js`
 
 interface ComparisonItem {
   exame: string
@@ -94,6 +91,11 @@ export default function Exams() {
       return
     }
 
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMsg('PDF muito grande. Máximo 5MB')
+      return
+    }
+
     setIsExtracting(true)
     try {
       const arrayBuffer = await file.arrayBuffer()
@@ -109,9 +111,7 @@ export default function Exams() {
       }
 
       if (!fullText.trim()) {
-        throw new Error(
-          'Não foi possível extrair texto do PDF. O arquivo pode ser uma imagem escaneada.',
-        )
+        throw new Error('PDF é uma imagem. Transcreva manualmente')
       }
 
       setExtractedText(fullText)
