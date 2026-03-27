@@ -21,7 +21,7 @@ import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import * as pdfjsLib from 'pdfjs-dist'
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `${window.location.origin}/pdf.worker.min.js`
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
 interface ComparisonItem {
   exame: string
@@ -110,7 +110,7 @@ export default function Exams() {
         fullText += pageText + '\n'
       }
 
-      if (!fullText.trim()) {
+      if (!fullText || fullText.trim().length === 0) {
         throw new Error('PDF é uma imagem. Transcreva manualmente')
       }
 
