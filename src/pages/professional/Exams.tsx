@@ -5,7 +5,16 @@ import { examService } from '@/services/examService'
 import { supabase } from '@/lib/supabase/client'
 import { Exam } from '@/types'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, FileText, Upload, Trash2, Sparkles, AlertCircle, Loader2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  FileText,
+  Upload,
+  Trash2,
+  Sparkles,
+  AlertCircle,
+  Loader2,
+  Save,
+} from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -20,6 +29,14 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import * as pdfjsLib from 'pdfjs-dist'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -90,6 +107,7 @@ export default function Exams() {
     null,
   )
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [tipoExame, setTipoExame] = useState<string>('laboratorial')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -181,7 +199,7 @@ export default function Exams() {
 
     try {
       const { data, error } = await supabase.functions.invoke('interpret-laboratorial', {
-        body: { examData: extractedText, pacienteId },
+        body: { examData: extractedText, pacienteId, tipoExame },
       })
 
       if (error) throw error
@@ -214,6 +232,44 @@ export default function Exams() {
 
   const scrollToHistory = () => {
     document.getElementById('historico-table')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const handleSaveTextOnly = async () => {
+    if (!extractedText.trim()) return
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      const { data: profile } = await supabase
+        .from('users')
+        .select('organization_id')
+        .eq('id', user?.id)
+        .single()
+      if (!profile?.organization_id) return
+
+      await examService.create({
+        paciente_id: pacienteId,
+        profissional_id: user?.id,
+        organization_id: profile.organization_id,
+        tipo_exame: tipoExame,
+        data_exame: new Date().toISOString(),
+        dados_extraidos: extractedText,
+        status_interpretacao: 'Salvo Manualmente',
+      })
+      toast({
+        title: 'Sucesso',
+        description: 'Texto do exame salvo no histórico.',
+      })
+      if (pacienteId) {
+        examService.getByPatient(pacienteId).then(setExams)
+      }
+    } catch (err: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao salvar texto do exame.',
+      })
+    }
   }
 
   return (
@@ -302,27 +358,51 @@ export default function Exams() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Tipo de Exame</Label>
+              <Select value={tipoExame} onValueChange={setTipoExame}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="laboratorial">Laboratorial</SelectItem>
+                  <SelectItem value="biorressonancia">Biorressonância</SelectItem>
+                  <SelectItem value="bioquimico">Bioquímico</SelectItem>
+                  <SelectItem value="outro">Outro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Textarea
               value={extractedText}
               onChange={(e) => setExtractedText(e.target.value)}
               className="min-h-[160px] font-mono text-xs focus-visible:ring-gold"
               placeholder="O texto extraído do PDF aparecerá aqui..."
             />
-            <Button
-              className="w-full bg-brand hover:bg-brand/90 text-white transition-colors"
-              onClick={handleInterpret}
-              disabled={!extractedText.trim() || isInterpreting}
-            >
-              {isInterpreting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin text-gold" /> Interpretando...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4 text-gold" /> Interpretar com IA
-                </>
-              )}
-            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleSaveTextOnly}
+                disabled={!extractedText.trim() || isInterpreting}
+              >
+                <Save className="mr-2 h-4 w-4" /> Salvar Texto Extraído
+              </Button>
+              <Button
+                className="w-full bg-brand hover:bg-brand/90 text-white transition-colors"
+                onClick={handleInterpret}
+                disabled={!extractedText.trim() || isInterpreting}
+              >
+                {isInterpreting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-gold" /> Processando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4 text-gold" /> Interpretar com IA
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -510,6 +590,10 @@ export default function Exams() {
                       <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
                         Interpretado
                       </span>
+                    ) : e.status_interpretacao === 'Salvo Manualmente' ? (
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                        Salvo Manual
+                      </span>
                     ) : (
                       <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
                         Pendente
@@ -585,9 +669,28 @@ export default function Exams() {
                         </DialogContent>
                       </Dialog>
                     ) : null}
-                    <Button variant="ghost" size="icon" className="text-brand">
-                      <FileText className="h-4 w-4" />
-                    </Button>
+                    {e.dados_extraidos && !e.interpretacao_ia && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-brand"
+                            title="Ver Texto"
+                          >
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Texto Extraído do Exame</DialogTitle>
+                          </DialogHeader>
+                          <div className="max-h-[60vh] overflow-y-auto w-full mt-4 bg-slate-50 p-4 rounded-md font-mono text-xs whitespace-pre-wrap">
+                            {e.dados_extraidos}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"

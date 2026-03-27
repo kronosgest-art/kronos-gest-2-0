@@ -12,17 +12,18 @@ export const anamesiService = {
     return data || []
   },
   async create(anamnese: Partial<Anamnese>): Promise<Anamnese> {
-    if (anamnese.id) {
+    const { id, ...updateData } = anamnese
+    if (id) {
       const { data, error } = await supabase
         .from('anamnese')
-        .update(anamnese)
-        .eq('id', anamnese.id)
+        .update(updateData)
+        .eq('id', id)
         .select()
         .single()
       if (error) throw error
       return data
     } else {
-      const { data, error } = await supabase.from('anamnese').insert([anamnese]).select().single()
+      const { data, error } = await supabase.from('anamnese').insert([updateData]).select().single()
       if (error) throw error
       return data
     }

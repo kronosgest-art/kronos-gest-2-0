@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { anamesiService } from '@/services/anamesiService'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Save, Eraser } from 'lucide-react'
+import { ArrowLeft, Save, Eraser, Printer } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useForm } from 'react-hook-form'
@@ -87,6 +87,9 @@ export default function AnamnesePage() {
           <h2 className="text-2xl font-bold text-brand">Anamnese Completa</h2>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.print()}>
+            <Printer className="mr-2 h-4 w-4" /> Imprimir
+          </Button>
           <Button variant="outline" onClick={() => form.reset()}>
             <Eraser className="mr-2 h-4 w-4" /> Limpar
           </Button>
