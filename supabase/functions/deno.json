@@ -1,12 +1,12 @@
 {
   "_versions": {
-    "interpret-bioresonance": 9,
-    "generate-prescription-suggestion": 10,
+    "interpret-bioresonance": 10,
+    "generate-prescription-suggestion": 11,
     "generate-cleansing-protocol": 9,
     "stripe-webhook": 6,
     "create-checkout-session": 3,
     "functions": 3,
-    "interpret-laboratorial": 16,
+    "interpret-laboratorial": 17,
     "generate-pdf": 1,
     "generate-encaminhamento": 1
   }
