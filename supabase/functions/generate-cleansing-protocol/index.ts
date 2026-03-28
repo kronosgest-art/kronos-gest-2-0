@@ -1,10 +1,5 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
-}
+import { corsHeaders } from '../_shared/cors.ts'
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -12,60 +7,45 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { patientData, examesBioquimicos, examesBiofisicos, prescricoes, tipoProtocolo } = await req.json()
+    const body = await req.json()
+    const goal = body.goal || body.context
 
-    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
-    if (!GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not set')
-    }
+    if (!goal) throw new Error('Objetivo do protocolo não fornecido')
 
-    const prompt = `
-      Você é um especialista em saúde integrativa. 
-      Gere um protocolo de limpeza do tipo "${tipoProtocolo}" para o paciente abaixo.
-      
-      Dados do paciente: ${JSON.stringify(patientData)}
-      Exames Bioquímicos recentes (amostra): ${JSON.stringify(examesBioquimicos?.slice(0, 2))}
-      Exames Biofísicos recentes (amostra): ${JSON.stringify(examesBiofisicos?.slice(0, 2))}
-      Prescrições recentes (amostra): ${JSON.stringify(prescricoes?.slice(0, 2))}
+    const apiKey = Deno.env.get('GEMINI_API_KEY')
+    if (!apiKey) throw new Error('GEMINI_API_KEY não configurada')
 
-      Baseado nesses dados, crie as etapas do protocolo e orientações clínicas.
-      Retorne ESTRITAMENTE um objeto JSON válido com a seguinte estrutura:
-      {
-        "etapas": ["etapa 1 com dosagem", "etapa 2 com dosagem", "etapa 3..."],
-        "orientacoes": "Texto com orientações clínicas detalhadas e práticas para o paciente."
-      }
-    `
+    const prompt = `Gere um protocolo de desintoxicação/limpeza integrativa detalhado, passo a passo, com orientações de uso, duração e restrições alimentares, visando o seguinte objetivo clínico:\n\n${goal}`
 
+    // Usando gemini-1.5-flash
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            response_mime_type: 'application/json'
-          }
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2 },
         }),
-      }
+      },
     )
 
-    const data = await response.json()
-    const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text
-    
-    if (!textResponse) {
-      throw new Error('Falha ao gerar resposta com a IA.')
+    if (!response.ok) {
+      throw new Error(`Falha na API da IA (Status ${response.status})`)
     }
 
-    const jsonResponse = JSON.parse(textResponse)
+    const data = await response.json()
+    const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Protocolo não gerado.'
 
-    return new Response(JSON.stringify(jsonResponse), {
+    return new Response(JSON.stringify({ result }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
     })
   } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
+    console.error('Edge Function Error:', error)
+    return new Response(JSON.stringify({ error: true, message: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
     })
   }
 })

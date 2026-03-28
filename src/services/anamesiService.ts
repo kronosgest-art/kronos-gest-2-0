@@ -1,31 +1,30 @@
 import { supabase } from '@/lib/supabase/client'
-import { Anamnese } from '@/types'
 
 export const anamesiService = {
-  async getByPatient(patientId: string): Promise<Anamnese[]> {
-    const { data, error } = await supabase
-      .from('anamnese')
-      .select('*')
-      .eq('paciente_id', patientId)
-      .order('created_at', { ascending: false })
-    if (error) throw error
-    return data || []
-  },
-  async create(anamnese: Partial<Anamnese>): Promise<Anamnese> {
-    const { id, ...updateData } = anamnese
-    if (id) {
-      const { data, error } = await supabase
-        .from('anamnese')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single()
-      if (error) throw error
-      return data
-    } else {
-      const { data, error } = await supabase.from('anamnese').insert([updateData]).select().single()
-      if (error) throw error
-      return data
+  saveAnamnese: async (data: any) => {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError || !sessionData?.session?.user) {
+      throw new Error('Usuário não autenticado.')
     }
+
+    const userId = sessionData.session.user.id
+
+    // Persists the data in the anamnese table
+    const { data: savedData, error } = await supabase
+      .from('anamnese')
+      .insert([
+        {
+          ...data,
+          profissional_id: userId,
+        },
+      ])
+      .select()
+
+    if (error) {
+      console.error('Erro no Supabase ao salvar anamnese:', error)
+      throw new Error(`Falha no banco de dados: ${error.message}`)
+    }
+
+    return savedData
   },
 }

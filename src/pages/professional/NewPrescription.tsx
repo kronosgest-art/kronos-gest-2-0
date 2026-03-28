@@ -1,243 +1,123 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/use-auth'
-import { prescriptionService } from '@/services/prescriptionService'
-import { examService } from '@/services/examService'
-import { anamesiService } from '@/services/anamesiService'
+import { useState } from 'react'
+import { Brain, Save, Printer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Save, Sparkles, Loader2 } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase/client'
-import { Input } from '@/components/ui/input'
+import logoUrl from '@/assets/logomarca-kronos-gest-5cdc9.jpeg'
 
 export default function NewPrescription() {
-  const { pacienteId } = useParams<{ pacienteId: string }>()
-  const { profile } = useAuth()
-  const navigate = useNavigate()
+  const [context, setContext] = useState('')
+  const [prescription, setPrescription] = useState('')
+  const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
-  const [loading, setLoading] = useState(false)
-  const [suggestion, setSuggestion] = useState<any>(null)
-  const [observacoes, setObservacoes] = useState('')
-  const [items, setItems] = useState<any[]>([])
+  const handleGenerateIA = async () => {
+    if (!context.trim()) {
+      toast({
+        title: 'Atenção',
+        description: 'Descreva o quadro clínico ou sintomas do paciente primeiro.',
+        variant: 'destructive',
+      })
+      return
+    }
 
-  useEffect(() => {
-    generateSuggestion()
-  }, [])
-
-  const generateSuggestion = async () => {
-    if (!pacienteId) return
     setLoading(true)
     try {
-      const { data: patient } = await supabase
-        .from('pacientes')
-        .select('*')
-        .eq('id', pacienteId)
-        .single()
-      const anamneses = await anamesiService.getByPatient(pacienteId)
-      const exames = await examService.getByPatient(pacienteId)
-
-      const anamnese = anamneses[0] || {}
-      const biofisico = exames.find((e) => e.tipo_exame === 'biorressonancia') || {}
-      const bioquimico = exames.find((e) => e.tipo_exame === 'laboratorial') || {}
-
       const { data, error } = await supabase.functions.invoke('generate-prescription-suggestion', {
-        body: {
-          patientData: patient,
-          anamnese,
-          exameBiofisico: biofisico,
-          exameBioquimico: bioquimico,
-        },
+        body: { context },
       })
 
       if (error) throw error
+      if (data?.error) throw new Error(data.message || 'Erro interno da IA')
 
-      setSuggestion(data.suggestion)
-      setObservacoes(data.suggestion.observacoes || '')
-      setItems(data.suggestion.itens_prescricao || [])
-    } catch (e: any) {
-      toast({ variant: 'destructive', title: 'Erro ao gerar IA', description: e.message })
+      setPrescription(data.result)
+      toast({ title: 'Sucesso', description: 'A IA gerou a sugestão de conduta terapêutica.' })
+    } catch (err: any) {
+      toast({
+        title: 'Erro de Geração',
+        description: err.message || 'Falha ao comunicar com a Edge Function.',
+        variant: 'destructive',
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSave = async () => {
-    if (!profile?.organization_id || !pacienteId) return
-    setLoading(true)
-    try {
-      const { data: pdfData, error: pdfError } = await supabase.functions.invoke('generate-pdf', {
-        body: { observacoes, items },
-      })
-
-      if (pdfError) throw pdfError
-
-      await prescriptionService.create({
-        organization_id: profile.organization_id,
-        paciente_id: pacienteId,
-        profissional_id: profile.id,
-        tipo_prescricao: 'Suplementação',
-        observacoes: observacoes,
-        itens_prescricao: items,
-        data_prescricao: new Date().toISOString().split('T')[0],
-        status: 'Finalizada',
-        gerado_por_ia: true,
-        pdf_url: pdfData?.url,
-      })
-
-      toast({ title: 'Sucesso', description: 'Prescrição salva com sucesso.' })
-      navigate(`/professional/patients/${pacienteId}/prescriptions`)
-    } catch (e: any) {
-      toast({ variant: 'destructive', title: 'Erro', description: e.message })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const updateItem = (index: number, field: string, value: string) => {
-    const newItems = [...items]
-    newItems[index][field] = value
-    setItems(newItems)
-  }
-
-  const addItem = () => {
-    setItems([
-      ...items,
-      { supplement: '', dosage: '', frequency: '', duration: '', justification: '' },
-    ])
-  }
-
-  const removeItem = (index: number) => {
-    setItems(items.filter((_, i) => i !== index))
+  const handlePrint = () => {
+    window.print()
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between border-b pb-4">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(`/professional/patients/${pacienteId}/prescriptions`)}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-          </Button>
-          <h2 className="text-2xl font-bold text-brand">Nova Prescrição com IA</h2>
+    <div className="p-6 max-w-5xl mx-auto min-h-screen bg-background">
+      <style>{`
+        @media print {
+          body, html { height: auto !important; overflow: visible !important; background: white; }
+          nav, aside, header { display: none !important; }
+          .print-hide { display: none !important; }
+          textarea { border: none !important; resize: none !important; box-shadow: none !important; overflow: visible !important; height: auto !important; font-family: sans-serif; }
+        }
+      `}</style>
+
+      <div className="flex justify-between items-center mb-8 print-hide">
+        <div>
+          <h1 className="text-3xl font-bold">Nova Prescrição</h1>
+          <p className="text-muted-foreground mt-1">
+            Gere condutas integrativas inteligentes para seus pacientes.
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={generateSuggestion} variant="outline" disabled={loading}>
-            <Sparkles className="mr-2 h-4 w-4 text-gold" /> {loading ? 'Gerando...' : 'Regerar IA'}
+          <Button variant="outline" onClick={handlePrint}>
+            <Printer className="w-4 h-4 mr-2" /> Imprimir Receita
           </Button>
-          <Button
-            onClick={handleSave}
-            className="bg-gold hover:bg-gold-hover text-white"
-            disabled={loading || !suggestion}
-          >
-            {loading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            Salvar e Gerar PDF
+          <Button>
+            <Save className="w-4 h-4 mr-2" /> Salvar Prescrição
           </Button>
         </div>
       </div>
 
-      {loading && !suggestion && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center h-64 space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin text-brand" />
-            <p className="text-muted-foreground">
-              Analisando exames e anamnese para gerar sugestão inteligente...
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <div className="hidden print:flex flex-col items-center justify-center border-b pb-6 mb-8">
+        <img src={logoUrl} alt="Logo KronosGest" className="w-28 h-28 object-contain mb-4" />
+        <h2 className="text-2xl font-bold uppercase tracking-wider text-center">
+          KronosGest Clínica Integrativa
+        </h2>
+        <p className="text-sm text-gray-600 mt-1">Prescrição e Conduta Terapêutica</p>
+      </div>
 
-      {suggestion && (
-        <div className="space-y-6 animate-fade-in">
-          <Card>
-            <CardHeader>
-              <CardTitle>Observações Clínicas (IA)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                className="min-h-[100px]"
-                value={observacoes}
-                onChange={(e) => setObservacoes(e.target.value)}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Itens da Prescrição</CardTitle>
-              <Button size="sm" variant="outline" onClick={addItem}>
-                Adicionar Item
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {items.map((item, i) => (
-                <div
-                  key={i}
-                  className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border rounded-md relative bg-slate-50"
-                >
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-2 right-2 text-red-500 h-8 w-8 p-0"
-                    onClick={() => removeItem(i)}
-                  >
-                    ×
-                  </Button>
-
-                  <div className="md:col-span-3 space-y-1">
-                    <label className="text-xs font-medium">Suplemento/Ativo</label>
-                    <Input
-                      value={item.supplement}
-                      onChange={(e) => updateItem(i, 'supplement', e.target.value)}
-                    />
-                  </div>
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="text-xs font-medium">Dosagem</label>
-                    <Input
-                      value={item.dosage}
-                      onChange={(e) => updateItem(i, 'dosage', e.target.value)}
-                    />
-                  </div>
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="text-xs font-medium">Frequência</label>
-                    <Input
-                      value={item.frequency}
-                      onChange={(e) => updateItem(i, 'frequency', e.target.value)}
-                    />
-                  </div>
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="text-xs font-medium">Duração</label>
-                    <Input
-                      value={item.duration}
-                      onChange={(e) => updateItem(i, 'duration', e.target.value)}
-                    />
-                  </div>
-                  <div className="md:col-span-3 space-y-1">
-                    <label className="text-xs font-medium">Justificativa (Opcional)</label>
-                    <Input
-                      value={item.justification}
-                      onChange={(e) => updateItem(i, 'justification', e.target.value)}
-                    />
-                  </div>
-                </div>
-              ))}
-              {items.length === 0 && (
-                <div className="text-center p-4 text-muted-foreground">
-                  Nenhum item na prescrição.
-                </div>
-              )}
-            </CardContent>
-          </Card>
+      <div className="grid lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-5 space-y-4 print-hide">
+          <div className="p-5 border rounded-xl bg-card shadow-sm">
+            <h3 className="font-semibold mb-4 flex items-center">
+              <Brain className="w-4 h-4 mr-2 text-primary" />
+              Assistente de IA
+            </h3>
+            <label className="text-sm font-medium mb-2 block text-muted-foreground">
+              Descreva o quadro, exames e objetivos do paciente:
+            </label>
+            <Textarea
+              value={context}
+              onChange={(e) => setContext(e.target.value)}
+              placeholder="Ex: Paciente com fadiga extrema, insônia crônica, candidíase de repetição. Exames mostram disbiose intestinal..."
+              className="min-h-[250px] mb-4"
+            />
+            <Button onClick={handleGenerateIA} disabled={loading} className="w-full">
+              {loading ? 'Gerando Sugestão...' : 'Gerar Prescrição com IA'}
+            </Button>
+          </div>
         </div>
-      )}
+
+        <div className="lg:col-span-7 space-y-2">
+          <label className="font-semibold text-lg print-hide block">Documento de Prescrição</label>
+          <div className="bg-card rounded-xl print:bg-white border print:border-none shadow-sm print:shadow-none">
+            <Textarea
+              value={prescription}
+              onChange={(e) => setPrescription(e.target.value)}
+              placeholder="A prescrição gerada pela IA ou digitada por você aparecerá aqui..."
+              className="min-h-[600px] print:min-h-0 text-base leading-relaxed p-6 border-none focus-visible:ring-1"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

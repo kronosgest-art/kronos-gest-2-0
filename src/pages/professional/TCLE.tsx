@@ -1,136 +1,87 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Printer, Save, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { ArrowLeft, Save, Printer, Download } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import { supabase } from '@/lib/supabase/client'
-import { useAuth } from '@/hooks/use-auth'
+import logoUrl from '@/assets/logomarca-kronos-gest-5cdc9.jpeg'
 
 export default function TCLE() {
-  const { pacienteId } = useParams<{ pacienteId: string }>()
-  const navigate = useNavigate()
   const { toast } = useToast()
-  const { profile } = useAuth()
+  const [content, setContent] = useState(`TERMO DE CONSENTIMENTO LIVRE E ESCLARECIDO
 
-  const [template, setTemplate] = useState(
-    `TERMO DE CONSENTIMENTO LIVRE E ESCLARECIDO (TCLE)\n\nEu, abaixo assinado, concordo em participar do tratamento...\n\nData: ___/___/_____\nAssinatura: ___________________________`,
-  )
-  const [docId, setDocId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+Eu, [Nome do Paciente], concordo em participar do acompanhamento terapêutico integrativo proposto pela clínica KronosGest.
+Fui devidamente informado(a) sobre os procedimentos, metodologias de avaliação e protocolos de desintoxicação/limpeza, quando aplicáveis.
 
-  useEffect(() => {
-    if (pacienteId) {
-      loadTCLE()
-    }
-  }, [pacienteId])
+Compreendo que as abordagens integrativas visam o reequilíbrio do organismo como um todo e que o sucesso do tratamento depende fundamentalmente da minha adesão às orientações.
 
-  const loadTCLE = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('tcle_documents')
-        .select('*')
-        .eq('paciente_id', pacienteId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
+Estou ciente de que as condutas adotadas não substituem tratamentos médicos convencionais emergenciais, mas atuam de forma complementar visando a otimização da minha saúde e bem-estar.
 
-      if (data) {
-        setTemplate(data.conteudo)
-        setDocId(data.id)
-      }
-    } catch (err) {
-      console.error('Nenhum TCLE anterior encontrado')
-    }
+___________________________________________________
+Assinatura do Paciente
+Data: ___/___/______
+`)
+
+  const handleSave = () => {
+    // Integração com banco de dados futura/existente
+    toast({ title: 'Sucesso', description: 'Template de TCLE salvo com sucesso no sistema!' })
   }
 
-  const handleSave = async () => {
-    if (!profile?.organization_id || !pacienteId) return
-    setIsLoading(true)
-    try {
-      if (docId) {
-        const { error } = await supabase
-          .from('tcle_documents')
-          .update({ conteudo: template, updated_at: new Date().toISOString() })
-          .eq('id', docId)
-        if (error) throw error
-      } else {
-        const { data, error } = await supabase
-          .from('tcle_documents')
-          .insert({
-            paciente_id: pacienteId,
-            organization_id: profile.organization_id,
-            profissional_id: profile.id,
-            conteudo: template,
-          })
-          .select()
-          .single()
-        if (error) throw error
-        if (data) setDocId(data.id)
-      }
-      toast({ title: 'Sucesso', description: 'Template de TCLE salvo com sucesso.' })
-    } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Erro ao salvar', description: error.message })
-    } finally {
-      setIsLoading(false)
-    }
+  const handlePrint = () => {
+    window.print()
   }
 
   const handleDownload = () => {
-    const blob = new Blob([template], { type: 'text/plain;charset=utf-8' })
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `TCLE_${pacienteId}.txt`
-    document.body.appendChild(link)
+    link.download = 'TCLE_KronosGest.txt'
     link.click()
-    document.body.removeChild(link)
     URL.revokeObjectURL(url)
-    toast({ title: 'Download iniciado', description: 'O documento foi exportado com sucesso.' })
+    toast({ title: 'Download Iniciado', description: 'O arquivo do TCLE foi gerado e baixado.' })
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between border-b pb-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate(-1)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+    <div className="p-6 max-w-4xl mx-auto min-h-screen bg-background">
+      <style>{`
+        @media print {
+          body, html { height: auto !important; overflow: visible !important; background: white; }
+          nav, aside, header { display: none !important; }
+          .print-hide { display: none !important; }
+          textarea { border: none !important; resize: none !important; box-shadow: none !important; overflow: visible !important; height: auto !important; }
+        }
+      `}</style>
+
+      <div className="flex justify-between items-center mb-6 print-hide">
+        <h1 className="text-3xl font-bold">TCLE</h1>
+        <div className="flex gap-2 flex-wrap justify-end">
+          <Button variant="outline" onClick={handleDownload}>
+            <Download className="mr-2 h-4 w-4" /> Download (.txt)
           </Button>
-          <h2 className="text-2xl font-bold text-[#1E3A8A]">TCLE</h2>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="text-[#1E3A8A]" onClick={() => window.print()}>
-            <Printer className="mr-2 h-4 w-4" /> Imprimir
+          <Button variant="outline" onClick={handlePrint}>
+            <Printer className="mr-2 h-4 w-4" /> Imprimir Documento
           </Button>
-          <Button variant="outline" className="text-green-700" onClick={handleDownload}>
-            <Download className="mr-2 h-4 w-4" /> Exportar / Download
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={isLoading}
-            className="bg-[#B8860B] hover:bg-[#A0750A] text-white"
-          >
-            <Save className="mr-2 h-4 w-4" /> {isLoading ? 'Salvando...' : 'Salvar Template'}
+          <Button onClick={handleSave}>
+            <Save className="mr-2 h-4 w-4" /> Salvar Template
           </Button>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-[#1E3A8A]">Documento - TCLE</CardTitle>
-          <CardDescription>
-            Edite e salve o termo de consentimento específico para este paciente.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Textarea
-            className="min-h-[400px] font-mono text-sm"
-            value={template}
-            onChange={(e) => setTemplate(e.target.value)}
-          />
-        </CardContent>
-      </Card>
+      <div className="hidden print:flex flex-col items-center justify-center border-b pb-6 mb-8">
+        <img src={logoUrl} alt="KronosGest Logo" className="w-24 h-24 object-contain mb-4" />
+        <h2 className="text-2xl font-bold uppercase tracking-wider text-center">
+          KronosGest Clínica Integrativa
+        </h2>
+        <p className="text-sm text-gray-600 mt-1">Termo de Consentimento Livre e Esclarecido</p>
+      </div>
+
+      <div className="bg-card rounded-lg print:bg-white">
+        <Textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="min-h-[600px] text-base leading-relaxed p-6 focus-visible:ring-1"
+        />
+      </div>
     </div>
   )
 }

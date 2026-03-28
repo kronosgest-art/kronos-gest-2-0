@@ -1,10 +1,5 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
-}
+import { corsHeaders } from '../_shared/cors.ts'
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -12,148 +7,47 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    console.log('[interpret-bioresonance] Request received')
-    
-    let body;
-    try {
-      body = await req.json()
-    } catch (e) {
-      throw { status: 400, message: "O corpo da requisição não é um JSON válido", details: "Leitura do payload da requisição" }
-    }
+    const body = await req.json()
+    const text = body.text
 
-    const { pdfBase64 } = body
+    if (!text) throw new Error('Texto da biorressonância não fornecido')
 
-    if (!pdfBase64) {
-      throw { status: 400, message: "Os dados do PDF (pdfBase64) não foram fornecidos ou estão vazios.", details: "Extração dos dados do PDF da requisição" }
-    }
-    
-    console.log(`[interpret-bioresonance] Received PDF with length: ${pdfBase64.length}`)
+    const apiKey = Deno.env.get('GEMINI_API_KEY')
+    if (!apiKey) throw new Error('GEMINI_API_KEY não configurada no servidor')
 
-    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
+    const prompt = `Atue como um especialista em saúde integrativa. Analise os dados extraídos de um exame de biorressonância abaixo e forneça uma interpretação clínica clara. Identifique os principais desequilíbrios bioenergéticos, carências nutricionais e sugira protocolos de intervenção naturais.\n\nDados do Exame:\n${text}`
 
-    if (!GEMINI_API_KEY) {
-      throw { status: 500, message: "A chave da API do Gemini (GEMINI_API_KEY) não está configurada.", details: "Validação de variáveis de ambiente do servidor" }
-    }
-
-    const systemPrompt = `
-      Você é um assistente especialista em analisar relatórios de biorressonância (exames biofísicos).
-      Analise o documento PDF em anexo e identifique:
-      1. Frequências e desequilíbrios energéticos principais.
-      2. Sugestões de protocolos clínicos integrativos para:
-         - Termobiologia (banhos, saunas, contrastes, etc.)
-         - Desparasitação (nutracêuticos, frequência, dieta restritiva, etc.)
-         - Detoxificação metabólica/hepática (fitoterápicos, alimentação, etc.)
-      
-      Formate a resposta de maneira estruturada, com títulos e bullet points, em português claro e profissional.
-    `
-
-    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
-    const generateContent = async (model: string, retries = 2) => {
-      let attempt = 0;
-      while (attempt <= retries) {
-        console.log(`[interpret-bioresonance] Calling Gemini API with model: ${model} (attempt ${attempt + 1})`)
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 seconds timeout
-        
-        try {
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [
-                  {
-                    parts: [
-                      { text: systemPrompt },
-                      {
-                        inlineData: {
-                          mimeType: 'application/pdf',
-                          data: pdfBase64,
-                        },
-                      },
-                    ],
-                  },
-                ],
-              }),
-              signal: controller.signal,
-            },
-          )
-          clearTimeout(timeoutId)
-          
-          if (res.status === 429 && attempt < retries) {
-            console.warn(`[interpret-bioresonance] Rate limit (429) hit on model ${model}. Retrying in 2 seconds...`)
-            attempt++;
-            await delay(2000);
-            continue;
-          }
-          
-          return res
-        } catch (err: any) {
-          clearTimeout(timeoutId)
-          if (err.name === 'AbortError') {
-            throw { status: 408, message: `A requisição para o Gemini (modelo ${model}) excedeu o tempo limite de 30 segundos.`, details: "Chamada à API Gemini (Timeout)" }
-          }
-          throw { status: 502, message: `Erro de rede ao conectar com o modelo ${model}: ${err.message}`, details: "Chamada à API Gemini (Erro de conexão)" }
-        }
-      }
-      throw new Error('Unexpected retry loop exit');
-    }
-
-    let response: Response;
-    try {
-      response = await generateContent('gemini-1.5-flash')
-    } catch (err: any) {
-      if (err.status) throw err;
-      throw { status: 500, message: err.message, details: "Tentativa de chamada ao modelo (gemini-1.5-flash)" }
-    }
+    // Usando gemini-1.5-flash
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2 },
+        }),
+      },
+    )
 
     if (!response.ok) {
-      const errText = await response.text()
-      console.error(`[interpret-bioresonance] gemini-1.5-flash failed with status ${response.status}: ${errText}`)
-      throw { status: response.status, message: errText, details: "Falha na chamada da IA" }
+      const errorData = await response.text()
+      console.error('Gemini API Error:', errorData)
+      throw new Error(`Erro API Gemini (Status ${response.status})`)
     }
 
-    let data;
-    try {
-      data = await response.json()
-    } catch (e) {
-      throw { status: 500, message: "A resposta da API do Gemini não é um JSON válido.", details: "Parsing da resposta da API" }
-    }
-    
-    console.log(`[interpret-bioresonance] Success response from Gemini. Candidates count: ${data.candidates?.length}`)
-    
-    const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text
-    
-    if (!aiResponseText) {
-      console.error('[interpret-bioresonance] No text returned from Gemini API.', JSON.stringify(data))
-      throw { status: 422, message: "A IA não retornou nenhum conteúdo de texto. Verifique se o documento PDF é legível.", details: "Extração do texto da resposta gerada pela IA" }
-    }
+    const data = await response.json()
+    const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Interpretação não gerada.'
 
-    console.log('[interpret-bioresonance] Finished processing successfully.')
-    return new Response(JSON.stringify({ interpretacao: aiResponseText }), {
+    return new Response(JSON.stringify({ result }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })
-    
   } catch (error: any) {
-    console.error('[interpret-bioresonance] Capturado erro formatado:', error)
-    
-    const errorResponse = {
-      error: true,
-      status: error.status || 500,
-      message: error.message || String(error),
-      details: error.details || "Contexto da falha não identificado ou erro interno do servidor"
-    }
-
-    const httpStatus = (typeof errorResponse.status === 'number' && errorResponse.status >= 400 && errorResponse.status <= 599) 
-      ? errorResponse.status 
-      : 400;
-
-    return new Response(JSON.stringify(errorResponse), {
+    console.error('Edge Function Error:', error)
+    return new Response(JSON.stringify({ error: true, message: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: httpStatus,
+      status: 200,
     })
   }
 })

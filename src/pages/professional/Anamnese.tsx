@@ -1,147 +1,145 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/use-auth'
-import { anamesiService } from '@/services/anamesiService'
+import { useState } from 'react'
+import { Printer, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Save, Eraser, Printer } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { anamneseSchema, AnamneseFormValues } from './anamnese/schema'
-import { Form } from '@/components/ui/form'
-import { PersonalTab } from './anamnese/tabs/PersonalTab'
-import { HealthTab } from './anamnese/tabs/HealthTab'
-import { SystemsTab } from './anamnese/tabs/SystemsTab'
-import { LifestyleTab } from './anamnese/tabs/LifestyleTab'
-import { AestheticsTab } from './anamnese/tabs/AestheticsTab'
+import { anamesiService } from '@/services/anamesiService'
+import logoUrl from '@/assets/logomarca-kronos-gest-5cdc9.jpeg'
 
-export default function AnamnesePage() {
-  const { pacienteId } = useParams<{ pacienteId: string }>()
-  const { profile } = useAuth()
-  const navigate = useNavigate()
+export default function Anamnese() {
   const { toast } = useToast()
-
-  const [anamneseId, setAnamneseId] = useState<string | null>(null)
-
-  const form = useForm<AnamneseFormValues>({
-    resolver: zodResolver(anamneseSchema),
-    defaultValues: {
-      paciente_id: pacienteId || '',
-      doencas_diagnosticadas: [],
-      alergias_sensibilidades: [],
-      historico_familiar: [],
-      cardiovascular: [],
-      gastrointestinal: [],
-      hepatica: [],
-      pancreatica: [],
-      renal: [],
-      pulmonar: [],
-      nervosa: [],
-      ossea_articular: [],
-      endocrina: [],
-      imunologica: [],
-      pele_problemas: [],
-      cabelo_problemas: [],
-      unhas_problemas: [],
-      corporal_problemas: [],
-      olhos_problemas: [],
-    },
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    altura: '',
+    peso: '',
+    queixa_principal: '',
+    hma: '',
+    hmp: '',
+    habitos: '',
   })
 
-  useEffect(() => {
-    if (pacienteId) {
-      anamesiService.getByPatient(pacienteId).then((list) => {
-        if (list.length > 0) {
-          setAnamneseId(list[0].id || null)
-          form.reset({ ...list[0], paciente_id: pacienteId } as any)
-        }
-      })
-    }
-  }, [pacienteId, form])
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
-  const onSubmit = async (data: AnamneseFormValues) => {
-    if (!profile?.organization_id || !pacienteId) return
+  const handleSave = async () => {
+    setLoading(true)
     try {
-      await anamesiService.create({
-        ...data,
-        id: anamneseId || undefined,
-        organization_id: profile.organization_id,
-        paciente_id: pacienteId,
-        profissional_id: profile.id,
+      await anamesiService.saveAnamnese({
+        ...formData,
+        altura: formData.altura ? parseFloat(formData.altura) : null,
+        peso: formData.peso ? parseFloat(formData.peso) : null,
       })
-      toast({ title: 'Sucesso', description: 'Anamnese salva com sucesso.' })
-      navigate(`/professional/patients/${pacienteId}`)
-    } catch (e: any) {
-      toast({ variant: 'destructive', title: 'Erro', description: e.message })
+      toast({ title: 'Sucesso', description: 'Anamnese salva com sucesso no prontuário!' })
+    } catch (error: any) {
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' })
+    } finally {
+      setLoading(false)
     }
   }
 
+  const handlePrint = () => {
+    window.print()
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between border-b pb-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate(`/professional/patients/${pacienteId}`)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-          </Button>
-          <h2 className="text-2xl font-bold text-brand">Anamnese Completa</h2>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()}>
+    <div className="p-6 max-w-4xl mx-auto min-h-screen bg-background">
+      <style>{`
+        @media print {
+          body, html { height: auto !important; overflow: visible !important; }
+          nav, aside, header { display: none !important; }
+          .print-hide { display: none !important; }
+          .print-container { padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
+          textarea { resize: none; overflow: visible; height: auto !important; border: none; padding: 0; min-height: fit-content; }
+          input { border: none !important; padding: 0 !important; }
+        }
+      `}</style>
+
+      <div className="flex justify-between items-center mb-6 print-hide">
+        <h1 className="text-3xl font-bold">Anamnese Clínica</h1>
+        <div className="space-x-2 flex">
+          <Button variant="outline" onClick={handlePrint}>
             <Printer className="mr-2 h-4 w-4" /> Imprimir
           </Button>
-          <Button variant="outline" onClick={() => form.reset()}>
-            <Eraser className="mr-2 h-4 w-4" /> Limpar
-          </Button>
-          <Button
-            onClick={form.handleSubmit(onSubmit)}
-            className="bg-gold hover:bg-gold-hover text-white"
-          >
-            <Save className="mr-2 h-4 w-4" /> Salvar
+          <Button onClick={handleSave} disabled={loading}>
+            <Save className="mr-2 h-4 w-4" /> {loading ? 'Salvando...' : 'Salvar Anamnese'}
           </Button>
         </div>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Tabs defaultValue="personal" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-slate-100 h-auto p-1">
-              <TabsTrigger value="personal" className="py-2">
-                Dados Pessoais
-              </TabsTrigger>
-              <TabsTrigger value="health" className="py-2">
-                Saúde/Familiar
-              </TabsTrigger>
-              <TabsTrigger value="systems" className="py-2">
-                Sistemas
-              </TabsTrigger>
-              <TabsTrigger value="lifestyle" className="py-2">
-                Estilo de Vida
-              </TabsTrigger>
-              <TabsTrigger value="aesthetics" className="py-2">
-                Estética
-              </TabsTrigger>
-            </TabsList>
-            <div className="mt-6">
-              <TabsContent value="personal">
-                <PersonalTab />
-              </TabsContent>
-              <TabsContent value="health">
-                <HealthTab />
-              </TabsContent>
-              <TabsContent value="systems">
-                <SystemsTab />
-              </TabsContent>
-              <TabsContent value="lifestyle">
-                <LifestyleTab />
-              </TabsContent>
-              <TabsContent value="aesthetics">
-                <AestheticsTab />
-              </TabsContent>
-            </div>
-          </Tabs>
-        </form>
-      </Form>
+      <div className="hidden print:flex flex-col items-center justify-center border-b pb-6 mb-8">
+        <img src={logoUrl} alt="KronosGest Logo" className="w-24 h-24 object-contain mb-4" />
+        <h2 className="text-2xl font-bold uppercase tracking-wider">
+          KronosGest Clínica Integrativa
+        </h2>
+        <p className="text-sm text-gray-600">Documento Oficial de Anamnese</p>
+      </div>
+
+      <div className="space-y-6 print-container">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="font-medium text-sm">Altura (m)</label>
+            <Input
+              type="number"
+              step="0.01"
+              value={formData.altura}
+              onChange={(e) => handleChange('altura', e.target.value)}
+              placeholder="Ex: 1.75"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="font-medium text-sm">Peso (kg)</label>
+            <Input
+              type="number"
+              step="0.1"
+              value={formData.peso}
+              onChange={(e) => handleChange('peso', e.target.value)}
+              placeholder="Ex: 70.5"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="font-medium">Queixa Principal</label>
+          <Textarea
+            value={formData.queixa_principal}
+            onChange={(e) => handleChange('queixa_principal', e.target.value)}
+            rows={3}
+            placeholder="Descreva a queixa principal do paciente..."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="font-medium">História da Moléstia Atual (HMA)</label>
+          <Textarea
+            value={formData.hma}
+            onChange={(e) => handleChange('hma', e.target.value)}
+            rows={5}
+            placeholder="Evolução, início dos sintomas..."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="font-medium">História Médica Pregressa (HMP)</label>
+          <Textarea
+            value={formData.hmp}
+            onChange={(e) => handleChange('hmp', e.target.value)}
+            rows={4}
+            placeholder="Doenças prévias, cirurgias, alergias..."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="font-medium">Hábitos de Vida</label>
+          <Textarea
+            value={formData.habitos}
+            onChange={(e) => handleChange('habitos', e.target.value)}
+            rows={4}
+            placeholder="Alimentação, sono, atividade física, tabagismo, etilismo..."
+          />
+        </div>
+      </div>
     </div>
   )
 }

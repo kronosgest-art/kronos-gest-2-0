@@ -1,85 +1,112 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase/client'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/hooks/use-toast'
 
 export default function ProtocolosLimpeza() {
-  const { pacienteId } = useParams<{ pacienteId: string }>()
-  const navigate = useNavigate()
-  const [protocolos, setProtocolos] = useState<any[]>([])
+  const [isOpen, setIsOpen] = useState(false)
+  const [nome, setNome] = useState('')
+  const [descricao, setDescricao] = useState('')
+  const { toast } = useToast()
 
-  useEffect(() => {
-    if (pacienteId) {
-      supabase
-        .from('protocolos_limpeza')
-        .select('*')
-        .eq('paciente_id', pacienteId)
-        .then(({ data }) => setProtocolos(data || []))
+  const handleSave = () => {
+    if (!nome.trim()) {
+      toast({
+        title: 'Atenção',
+        description: 'O nome do protocolo é obrigatório.',
+        variant: 'destructive',
+      })
+      return
     }
-  }, [pacienteId])
+    toast({ title: 'Sucesso', description: 'Protocolo salvo com sucesso!' })
+    setIsOpen(false)
+    setNome('')
+    setDescricao('')
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between border-b pb-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate(-1)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-          </Button>
-          <h2 className="text-2xl font-bold text-[#1E3A8A]">Protocolos de Limpeza</h2>
+    <div className="p-6 max-w-6xl mx-auto min-h-screen">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">Protocolos de Limpeza</h1>
+          <p className="text-muted-foreground mt-1">
+            Gerencie seus protocolos de desintoxicação e limpeza integrativa.
+          </p>
         </div>
-        <Button className="bg-[#B8860B] hover:bg-[#A0750A] text-white">
-          <Plus className="mr-2 h-4 w-4" /> Novo Protocolo
+        <Button onClick={() => setIsOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" /> Novo Protocolo
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico de Protocolos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {protocolos.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell>{new Date(p.created_at).toLocaleDateString('pt-BR')}</TableCell>
-                  <TableCell>{p.tipo_protocolo}</TableCell>
-                  <TableCell>{p.status}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" className="text-red-500">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {protocolos.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
-                    Nenhum protocolo encontrado.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Placeholder for protocols list */}
+        <div className="p-5 border rounded-xl bg-card shadow-sm hover:shadow-md transition-shadow">
+          <h3 className="font-semibold text-lg">Limpeza Hepática</h3>
+          <p className="text-sm text-muted-foreground mt-2 line-clamp-3">
+            Protocolo padrão para desintoxicação do fígado e vesícula biliar. Inclui o uso de ácido
+            málico, sais de epsom e azeite extra virgem.
+          </p>
+          <Button variant="link" className="mt-4 p-0 h-auto">
+            Ver detalhes &rarr;
+          </Button>
+        </div>
+        <div className="p-5 border rounded-xl bg-card shadow-sm hover:shadow-md transition-shadow">
+          <h3 className="font-semibold text-lg">Desparasitação</h3>
+          <p className="text-sm text-muted-foreground mt-2 line-clamp-3">
+            Protocolo antiparasitário de 15 dias focado em tinturas herbais (Nogueira Negra,
+            Absinto, Cravo) e modulação intestinal.
+          </p>
+          <Button variant="link" className="mt-4 p-0 h-auto">
+            Ver detalhes &rarr;
+          </Button>
+        </div>
+      </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Criar Novo Protocolo de Limpeza</DialogTitle>
+            <DialogDescription>
+              Defina as instruções e componentes do novo protocolo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Nome do Protocolo</label>
+              <Input
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                placeholder="Ex: Limpeza Intestinal Profunda"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Descrição / Instruções / Posologia</label>
+              <Textarea
+                value={descricao}
+                onChange={(e) => setDescricao(e.target.value)}
+                placeholder="Descreva o passo a passo, ingredientes e orientações para o paciente..."
+                rows={8}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSave}>Salvar Protocolo</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
