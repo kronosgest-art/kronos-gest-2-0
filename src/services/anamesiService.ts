@@ -9,16 +9,13 @@ export const anamesiService = {
 
     const userId = sessionData.session.user.id
 
-    // Persists the data in the anamnese table
-    const { data: savedData, error } = await supabase
-      .from('anamnese')
-      .insert([
-        {
-          ...data,
-          profissional_id: userId,
-        },
-      ])
-      .select()
+    // Upserts the data in the anamnese table
+    const payload = {
+      ...data,
+      profissional_id: userId,
+    }
+
+    const { data: savedData, error } = await supabase.from('anamnese').upsert(payload).select()
 
     if (error) {
       console.error('Erro no Supabase ao salvar anamnese:', error)

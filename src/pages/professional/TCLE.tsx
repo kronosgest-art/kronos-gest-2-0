@@ -67,15 +67,15 @@ Data: ___/___/______
         </div>
       </div>
 
-      <div className="hidden print:flex flex-col items-center justify-center border-b pb-6 mb-8">
-        <img src={logoUrl} alt="KronosGest Logo" className="w-24 h-24 object-contain mb-4" />
-        <h2 className="text-2xl font-bold uppercase tracking-wider text-center">
+      <div className="hidden print:flex flex-col items-center justify-center border-b pb-6 mb-8 print-header">
+        <img src={logoUrl} alt="KronosGest Logo" className="w-32 h-32 object-contain mb-4" />
+        <h2 className="text-3xl font-bold uppercase tracking-wider text-center text-primary print:text-black">
           KronosGest Clínica Integrativa
         </h2>
-        <p className="text-sm text-gray-600 mt-1">Termo de Consentimento Livre e Esclarecido</p>
+        <p className="text-lg text-gray-600 mt-1">Termo de Consentimento Livre e Esclarecido</p>
       </div>
 
-      <div className="bg-card rounded-lg print:bg-white">
+      <div className="bg-card rounded-lg print:bg-transparent print:shadow-none print:border-none">
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}

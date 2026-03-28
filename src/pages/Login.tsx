@@ -34,11 +34,11 @@ export default function Login() {
     <div className="flex min-h-screen bg-muted/30 items-center justify-center p-4">
       <div className="w-full max-w-md bg-background rounded-xl shadow-lg border p-8 space-y-6 animate-in fade-in zoom-in-95 duration-500">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/10 shadow-sm bg-white flex items-center justify-center">
-            <img src={logoUrl} alt="KronosGest Logo" className="w-full h-full object-contain p-2" />
+          <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-primary/10 shadow-md bg-white flex items-center justify-center mb-2">
+            <img src={logoUrl} alt="KronosGest Logo" className="w-full h-full object-contain p-1" />
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold tracking-tight">KronosGest Clínica</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-primary">KronosGest Clínica</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Faça login para acessar a gestão inteligente
             </p>
