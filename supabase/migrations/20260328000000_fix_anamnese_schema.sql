@@ -1,4 +1,4 @@
-DO $
+DO $$
 BEGIN
   -- Corrige a tabela anamnese adicionando as colunas necessárias para o formulário
   IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'anamnese') THEN
@@ -26,7 +26,7 @@ BEGIN
   CREATE POLICY "Profissional pode gerenciar anamneses" ON public.anamnese
     FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
-END $;
+END $$;
 
 -- Força a recarga do schema cache do PostgREST para reconhecer a nova coluna "altura"
 NOTIFY pgrst, 'reload schema';
