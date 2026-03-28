@@ -3,8 +3,7 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
 }
 
 Deno.serve(async (req: Request) => {
@@ -14,38 +13,26 @@ Deno.serve(async (req: Request) => {
 
   try {
     console.log('[interpret-bioresonance] Request received')
-
-    let body
+    
+    let body;
     try {
       body = await req.json()
     } catch (e) {
-      throw {
-        status: 400,
-        message: 'O corpo da requisição não é um JSON válido',
-        details: 'Leitura do payload da requisição',
-      }
+      throw { status: 400, message: "O corpo da requisição não é um JSON válido", details: "Leitura do payload da requisição" }
     }
 
     const { pdfBase64 } = body
 
     if (!pdfBase64) {
-      throw {
-        status: 400,
-        message: 'Os dados do PDF (pdfBase64) não foram fornecidos ou estão vazios.',
-        details: 'Extração dos dados do PDF da requisição',
-      }
+      throw { status: 400, message: "Os dados do PDF (pdfBase64) não foram fornecidos ou estão vazios.", details: "Extração dos dados do PDF da requisição" }
     }
-
+    
     console.log(`[interpret-bioresonance] Received PDF with length: ${pdfBase64.length}`)
 
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
 
     if (!GEMINI_API_KEY) {
-      throw {
-        status: 500,
-        message: 'A chave da API do Gemini (GEMINI_API_KEY) não está configurada.',
-        details: 'Validação de variáveis de ambiente do servidor',
-      }
+      throw { status: 500, message: "A chave da API do Gemini (GEMINI_API_KEY) não está configurada.", details: "Validação de variáveis de ambiente do servidor" }
     }
 
     const systemPrompt = `
@@ -60,17 +47,15 @@ Deno.serve(async (req: Request) => {
       Formate a resposta de maneira estruturada, com títulos e bullet points, em português claro e profissional.
     `
 
-    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms))
+    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
     const generateContent = async (model: string, retries = 2) => {
-      let attempt = 0
+      let attempt = 0;
       while (attempt <= retries) {
-        console.log(
-          `[interpret-bioresonance] Calling Gemini API with model: ${model} (attempt ${attempt + 1})`,
-        )
+        console.log(`[interpret-bioresonance] Calling Gemini API with model: ${model} (attempt ${attempt + 1})`)
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 seconds timeout
-
+        
         try {
           const res = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
@@ -96,84 +81,54 @@ Deno.serve(async (req: Request) => {
             },
           )
           clearTimeout(timeoutId)
-
+          
           if (res.status === 429 && attempt < retries) {
-            console.warn(
-              `[interpret-bioresonance] Rate limit (429) hit on model ${model}. Retrying in 2 seconds...`,
-            )
-            attempt++
-            await delay(2000)
-            continue
+            console.warn(`[interpret-bioresonance] Rate limit (429) hit on model ${model}. Retrying in 2 seconds...`)
+            attempt++;
+            await delay(2000);
+            continue;
           }
-
+          
           return res
         } catch (err: any) {
           clearTimeout(timeoutId)
           if (err.name === 'AbortError') {
-            throw {
-              status: 408,
-              message: `A requisição para o Gemini (modelo ${model}) excedeu o tempo limite de 30 segundos.`,
-              details: 'Chamada à API Gemini (Timeout)',
-            }
+            throw { status: 408, message: `A requisição para o Gemini (modelo ${model}) excedeu o tempo limite de 30 segundos.`, details: "Chamada à API Gemini (Timeout)" }
           }
-          throw {
-            status: 502,
-            message: `Erro de rede ao conectar com o modelo ${model}: ${err.message}`,
-            details: 'Chamada à API Gemini (Erro de conexão)',
-          }
+          throw { status: 502, message: `Erro de rede ao conectar com o modelo ${model}: ${err.message}`, details: "Chamada à API Gemini (Erro de conexão)" }
         }
       }
-      throw new Error('Unexpected retry loop exit')
+      throw new Error('Unexpected retry loop exit');
     }
 
-    let response: Response
+    let response: Response;
     try {
       response = await generateContent('gemini-1.5-flash')
     } catch (err: any) {
-      if (err.status) throw err
-      throw {
-        status: 500,
-        message: err.message,
-        details: 'Tentativa de chamada ao modelo (gemini-1.5-flash)',
-      }
+      if (err.status) throw err;
+      throw { status: 500, message: err.message, details: "Tentativa de chamada ao modelo (gemini-1.5-flash)" }
     }
 
     if (!response.ok) {
       const errText = await response.text()
-      console.error(
-        `[interpret-bioresonance] gemini-1.5-flash failed with status ${response.status}: ${errText}`,
-      )
-      throw { status: response.status, message: errText, details: 'Falha na chamada da IA' }
+      console.error(`[interpret-bioresonance] gemini-1.5-flash failed with status ${response.status}: ${errText}`)
+      throw { status: response.status, message: errText, details: "Falha na chamada da IA" }
     }
 
-    let data
+    let data;
     try {
       data = await response.json()
     } catch (e) {
-      throw {
-        status: 500,
-        message: 'A resposta da API do Gemini não é um JSON válido.',
-        details: 'Parsing da resposta da API',
-      }
+      throw { status: 500, message: "A resposta da API do Gemini não é um JSON válido.", details: "Parsing da resposta da API" }
     }
-
-    console.log(
-      `[interpret-bioresonance] Success response from Gemini. Candidates count: ${data.candidates?.length}`,
-    )
-
+    
+    console.log(`[interpret-bioresonance] Success response from Gemini. Candidates count: ${data.candidates?.length}`)
+    
     const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text
-
+    
     if (!aiResponseText) {
-      console.error(
-        '[interpret-bioresonance] No text returned from Gemini API.',
-        JSON.stringify(data),
-      )
-      throw {
-        status: 422,
-        message:
-          'A IA não retornou nenhum conteúdo de texto. Verifique se o documento PDF é legível.',
-        details: 'Extração do texto da resposta gerada pela IA',
-      }
+      console.error('[interpret-bioresonance] No text returned from Gemini API.', JSON.stringify(data))
+      throw { status: 422, message: "A IA não retornou nenhum conteúdo de texto. Verifique se o documento PDF é legível.", details: "Extração do texto da resposta gerada pela IA" }
     }
 
     console.log('[interpret-bioresonance] Finished processing successfully.')
@@ -181,22 +136,20 @@ Deno.serve(async (req: Request) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })
+    
   } catch (error: any) {
     console.error('[interpret-bioresonance] Capturado erro formatado:', error)
-
+    
     const errorResponse = {
       error: true,
       status: error.status || 500,
       message: error.message || String(error),
-      details: error.details || 'Contexto da falha não identificado ou erro interno do servidor',
+      details: error.details || "Contexto da falha não identificado ou erro interno do servidor"
     }
 
-    const httpStatus =
-      typeof errorResponse.status === 'number' &&
-      errorResponse.status >= 400 &&
-      errorResponse.status <= 599
-        ? errorResponse.status
-        : 400
+    const httpStatus = (typeof errorResponse.status === 'number' && errorResponse.status >= 400 && errorResponse.status <= 599) 
+      ? errorResponse.status 
+      : 400;
 
     return new Response(JSON.stringify(errorResponse), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
