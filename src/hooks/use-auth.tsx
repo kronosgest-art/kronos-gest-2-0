@@ -80,7 +80,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!user) return
 
       try {
-        const { data, error } = await supabase.from('users').select('*').eq('id', user.id).single()
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .limit(1)
+          .maybeSingle()
 
         if (isMounted) {
           if (!error && data) {
