@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase/client'
+import { cn } from '@/lib/utils'
 
 export default function Exams() {
   const { pacienteId } = useParams()
